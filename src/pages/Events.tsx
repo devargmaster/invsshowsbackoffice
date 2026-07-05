@@ -7,7 +7,7 @@ export function Events() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
-  
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -73,7 +73,7 @@ export function Events() {
     try {
       const { status, ...dto } = formData;
       let finalEvent;
-      
+
       if (editingEvent) {
         // Edit mode (status can be updated together)
         finalEvent = await apiClient.patch<any>(`/events/${editingEvent}`, {
@@ -88,14 +88,14 @@ export function Events() {
           ...dto,
           date: new Date(formData.date).toISOString()
         });
-        
+
         finalEvent = created;
         if (status !== 'DRAFT') {
-           finalEvent = await apiClient.patch<any>(`/events/${created.id}`, { status });
+          finalEvent = await apiClient.patch<any>(`/events/${created.id}`, { status });
         }
         setEvents(prev => [finalEvent, ...prev]);
       }
-      
+
       setShowModal(false);
     } catch (e: any) {
       alert('Error al guardar evento: ' + (e.message || JSON.stringify(e)));
@@ -155,16 +155,16 @@ export function Events() {
           <div className="glass" style={{ width: 500, padding: 32, borderRadius: 24 }}>
             <h2 style={{ marginTop: 0, marginBottom: 24 }}>{editingEvent ? 'Editar Evento' : 'Crear Evento'}</h2>
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <input className="input" placeholder="Título" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
-              <textarea className="input" placeholder="Descripción" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={3} />
-              <input className="input" type="datetime-local" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} required />
-              <input className="input" placeholder="Ubicación (opcional)" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
-              <select className="input" value={formData.mode} onChange={e => setFormData({...formData, mode: e.target.value})}>
+              <input className="input" placeholder="Título" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
+              <textarea className="input" placeholder="Descripción" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} />
+              <input className="input" type="datetime-local" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} required />
+              <input className="input" placeholder="Ubicación (opcional)" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
+              <select className="input" value={formData.mode} onChange={e => setFormData({ ...formData, mode: e.target.value })}>
                 <option value="PRESENCIAL">Presencial</option>
                 <option value="STREAMING">Streaming</option>
                 <option value="HIBRIDO">Híbrido</option>
               </select>
-              <select className="input" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
+              <select className="input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
                 <option value="DRAFT">Borrador (DRAFT)</option>
                 <option value="PUBLISHED">Publicado (PUBLISHED)</option>
               </select>

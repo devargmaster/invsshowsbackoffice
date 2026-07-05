@@ -36,7 +36,7 @@ export function Tickets() {
 
   useEffect(() => {
     if (!selectedEventId) return;
-    
+
     // Initial fetch
     handleSearch(true);
 
@@ -54,9 +54,9 @@ export function Tickets() {
       <p style={{ color: '#8F8FA3', marginBottom: 32 }}>Buscá un evento para ver las entradas vendidas.</p>
 
       <div className="glass" style={{ padding: 24, borderRadius: 16, display: 'flex', gap: 16, marginBottom: 32 }}>
-        <select 
-          className="input" 
-          value={selectedEventId} 
+        <select
+          className="input"
+          value={selectedEventId}
           onChange={e => setSelectedEventId(e.target.value)}
           style={{ flex: 1 }}
         >
@@ -84,8 +84,8 @@ export function Tickets() {
             </thead>
             <tbody>
               {tickets.map(t => (
-                <tr 
-                  key={t.id} 
+                <tr
+                  key={t.id}
                   style={{ borderBottom: '1px solid #2D2D45', cursor: 'pointer', transition: 'background 0.2s' }}
                   onClick={() => setSelectedTicket(t)}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'}
@@ -94,10 +94,10 @@ export function Tickets() {
                   <td style={{ padding: '16px 24px', color: '#B9B9C8', fontSize: 13 }}>{t.id}</td>
                   <td style={{ padding: '16px 24px', fontWeight: 600 }}>{t.user?.fullName || t.user?.email || t.userId}</td>
                   <td style={{ padding: '16px 24px' }}>
-                    <span style={{ 
-                      backgroundColor: t.used ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)', 
-                      color: t.used ? '#FCA5A5' : '#86EFAC', 
-                      padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 
+                    <span style={{
+                      backgroundColor: t.used ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
+                      color: t.used ? '#FCA5A5' : '#86EFAC',
+                      padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700
                     }}>
                       {t.used ? 'UTILIZADO' : 'VÁLIDO'}
                     </span>
@@ -119,7 +119,7 @@ export function Tickets() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="glass" style={{ width: 450, padding: 32, borderRadius: 24 }}>
             <h2 style={{ marginTop: 0, marginBottom: 24 }}>Detalle del Asistente</h2>
-            
+
             <div style={{ marginBottom: 16 }}>
               <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>ID Usuario</div>
               <div style={{ fontSize: 14, fontFamily: 'monospace', color: '#A78BFA' }}>{selectedTicket.userId}</div>
