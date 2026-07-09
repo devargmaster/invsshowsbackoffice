@@ -72,7 +72,7 @@ export function Events() {
     e.preventDefault();
     try {
       const { status, ...dto } = formData;
-      let finalEvent;
+      let finalEvent: any;
 
       if (editingEvent) {
         // Edit mode (status can be updated together)

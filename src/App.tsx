@@ -5,6 +5,9 @@ import { Dashboard } from './pages/Dashboard';
 import { Events } from './pages/Events';
 import { Tickets } from './pages/Tickets';
 import { Users } from './pages/Users';
+import { Orders } from './pages/Orders';
+import { Categories } from './pages/Categories';
+import { Addons } from './pages/Addons';
 import { AdminLayout } from './components/AdminLayout';
 
 function App() {
@@ -12,10 +15,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        
+
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/addons" element={<Addons />} />
+          <Route path="/orders" element={<Orders />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/users" element={<Users />} />
         </Route>

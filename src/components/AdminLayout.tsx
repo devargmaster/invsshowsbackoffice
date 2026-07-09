@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Ticket, Users, Activity } from 'lucide-react';
+import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt } from 'lucide-react';
 
 export function AdminLayout() {
   const navigate = useNavigate();
@@ -37,6 +37,9 @@ export function AdminLayout() {
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <Link to="/dashboard" style={navItemStyle('/dashboard')}><Activity size={20} /> Dashboard</Link>
           <Link to="/events" style={navItemStyle('/events')}><Calendar size={20} /> Eventos</Link>
+          <Link to="/categories" style={navItemStyle('/categories')}><Tags size={20} /> Categorías</Link>
+          <Link to="/addons" style={navItemStyle('/addons')}><Shirt size={20} /> Adicionales</Link>
+          <Link to="/orders" style={navItemStyle('/orders')}><CreditCard size={20} /> Pagos</Link>
           <Link to="/tickets" style={navItemStyle('/tickets')}><Ticket size={20} /> Entradas</Link>
           <Link to="/users" style={navItemStyle('/users')}><Users size={20} /> Usuarios</Link>
         </nav>
