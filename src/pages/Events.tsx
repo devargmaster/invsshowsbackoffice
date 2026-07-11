@@ -14,7 +14,11 @@ export function Events() {
     date: new Date().toISOString().slice(0, 16),
     location: '',
     mode: 'PRESENCIAL',
-    status: 'DRAFT'
+    status: 'DRAFT',
+    liveIsFree: false,
+    liveIncludedInSubscription: true,
+    liveSellable: false,
+    livePrice: '',
   });
 
   useEffect(() => {
@@ -50,7 +54,11 @@ export function Events() {
       date: new Date(ev.date).toISOString().slice(0, 16),
       location: ev.location || '',
       mode: ev.mode,
-      status: ev.status
+      status: ev.status,
+      liveIsFree: ev.liveIsFree ?? false,
+      liveIncludedInSubscription: ev.liveIncludedInSubscription ?? true,
+      liveSellable: ev.livePriceCents != null,
+      livePrice: ev.livePriceCents != null ? (ev.livePriceCents / 100).toString() : '',
     });
     setShowModal(true);
   };
@@ -63,7 +71,11 @@ export function Events() {
       date: new Date().toISOString().slice(0, 16),
       location: '',
       mode: 'PRESENCIAL',
-      status: 'DRAFT'
+      status: 'DRAFT',
+      liveIsFree: false,
+      liveIncludedInSubscription: true,
+      liveSellable: false,
+      livePrice: '',
     });
     setShowModal(true);
   };
@@ -71,7 +83,11 @@ export function Events() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { status, ...dto } = formData;
+      const { status, liveSellable, livePrice, ...rest } = formData;
+      const dto = {
+        ...rest,
+        livePriceCents: liveSellable ? Math.round(parseFloat(livePrice || '0') * 100) : null,
+      };
       let finalEvent: any;
 
       if (editingEvent) {
@@ -152,7 +168,7 @@ export function Events() {
 
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass" style={{ width: 500, padding: 32, borderRadius: 24 }}>
+          <div className="glass" style={{ width: 540, padding: 32, borderRadius: 24, maxHeight: '85vh', overflowY: 'auto', boxSizing: 'border-box' }}>
             <h2 style={{ marginTop: 0, marginBottom: 24 }}>{editingEvent ? 'Editar Evento' : 'Crear Evento'}</h2>
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <input className="input" placeholder="Título" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
@@ -168,6 +184,31 @@ export function Events() {
                 <option value="DRAFT">Borrador (DRAFT)</option>
                 <option value="PUBLISHED">Publicado (PUBLISHED)</option>
               </select>
+
+              {formData.mode !== 'PRESENCIAL' && (
+                <div style={{ borderTop: '1px solid #2D2D45', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <span style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>Acceso al streaming en vivo</span>
+                  <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={formData.liveIsFree} onChange={e => setFormData({ ...formData, liveIsFree: e.target.checked })} />
+                    Gratis para cualquier usuario logueado
+                  </label>
+                  <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={formData.liveIncludedInSubscription} onChange={e => setFormData({ ...formData, liveIncludedInSubscription: e.target.checked })} />
+                    Incluido con una suscripción activa
+                  </label>
+                  <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={formData.liveSellable} onChange={e => setFormData({ ...formData, liveSellable: e.target.checked })} />
+                    Vender por separado (pago único, pay-per-view)
+                  </label>
+                  {formData.liveSellable && (
+                    <input className="input" type="number" step="0.01" placeholder="Precio en $ (ej: 1800)" value={formData.livePrice} onChange={e => setFormData({ ...formData, livePrice: e.target.value })} required />
+                  )}
+                  <p style={{ color: '#8F8FA3', fontSize: 12, margin: '4px 0 0', lineHeight: 1.5 }}>
+                    Estos 3 modos no son excluyentes entre sí — podés combinarlos.
+                  </p>
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                 <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid #2D2D45', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>

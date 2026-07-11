@@ -8,6 +8,8 @@ import { Users } from './pages/Users';
 import { Orders } from './pages/Orders';
 import { Categories } from './pages/Categories';
 import { Addons } from './pages/Addons';
+import { Content } from './pages/Content';
+import { ContentPurchases } from './pages/ContentPurchases';
 import { AdminLayout } from './components/AdminLayout';
 
 function App() {
@@ -21,7 +23,9 @@ function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/addons" element={<Addons />} />
+          <Route path="/content" element={<Content />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/content-purchases" element={<ContentPurchases />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/users" element={<Users />} />
         </Route>
