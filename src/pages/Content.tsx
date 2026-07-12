@@ -10,6 +10,7 @@ const emptyForm = {
   title: '',
   description: '',
   eventId: '',
+  videoUrl: '',
   muxAssetId: '',
   muxPlaybackId: '',
   thumbnailUrl: '',
@@ -58,8 +59,9 @@ export function Content() {
       title: rec.title,
       description: rec.description || '',
       eventId: rec.eventId || '',
-      muxAssetId: rec.muxAssetId,
-      muxPlaybackId: rec.muxPlaybackId,
+      videoUrl: rec.videoUrl || '',
+      muxAssetId: rec.muxAssetId || '',
+      muxPlaybackId: rec.muxPlaybackId || '',
       thumbnailUrl: rec.thumbnailUrl || '',
       isFree: rec.isFree,
       includedInSubscription: rec.includedInSubscription,
@@ -75,8 +77,9 @@ export function Content() {
       title: formData.title,
       description: formData.description || undefined,
       eventId: formData.eventId || undefined,
-      muxAssetId: formData.muxAssetId,
-      muxPlaybackId: formData.muxPlaybackId,
+      videoUrl: formData.videoUrl || undefined,
+      muxAssetId: formData.muxAssetId || undefined,
+      muxPlaybackId: formData.muxPlaybackId || undefined,
       thumbnailUrl: formData.thumbnailUrl || undefined,
       isFree: formData.isFree,
       includedInSubscription: formData.includedInSubscription,
@@ -183,8 +186,12 @@ export function Content() {
                 </select>
               </div>
 
-              <input className="input" placeholder="Mux Asset ID" value={formData.muxAssetId} onChange={e => setFormData({ ...formData, muxAssetId: e.target.value })} required />
-              <input className="input" placeholder="Mux Playback ID" value={formData.muxPlaybackId} onChange={e => setFormData({ ...formData, muxPlaybackId: e.target.value })} required />
+              <div>
+                <label style={{ color: '#8F8FA3', fontSize: 13, display: 'block', marginBottom: 6 }}>Fuente del video — cargá una URL de YouTube O los IDs de Mux</label>
+                <input className="input" placeholder="URL de YouTube (ej: https://www.youtube.com/watch?v=...)" value={formData.videoUrl} onChange={e => setFormData({ ...formData, videoUrl: e.target.value })} style={{ width: '100%', boxSizing: 'border-box' }} />
+              </div>
+              <input className="input" placeholder="Mux Asset ID (solo si no usás URL)" value={formData.muxAssetId} onChange={e => setFormData({ ...formData, muxAssetId: e.target.value })} />
+              <input className="input" placeholder="Mux Playback ID (solo si no usás URL)" value={formData.muxPlaybackId} onChange={e => setFormData({ ...formData, muxPlaybackId: e.target.value })} />
               <input className="input" placeholder="URL de thumbnail (opcional)" value={formData.thumbnailUrl} onChange={e => setFormData({ ...formData, thumbnailUrl: e.target.value })} />
 
               <div style={{ borderTop: '1px solid #2D2D45', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
