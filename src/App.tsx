@@ -11,6 +11,8 @@ import { Addons } from './pages/Addons';
 import { Content } from './pages/Content';
 import { ContentPurchases } from './pages/ContentPurchases';
 import { AdminLayout } from './components/AdminLayout';
+import { CarouselPhotos } from './pages/CarouselPhotos';
+
 
 function App() {
   return (
@@ -20,6 +22,7 @@ function App() {
 
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/carousel-photos" element={<CarouselPhotos />} />
           <Route path="/events" element={<Events />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/addons" element={<Addons />} />

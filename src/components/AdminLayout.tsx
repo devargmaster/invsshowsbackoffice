@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet } from 'lucide-react';
+import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, Image } from 'lucide-react';
 
 export function AdminLayout() {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ export function AdminLayout() {
         
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <Link to="/dashboard" style={navItemStyle('/dashboard')}><Activity size={20} /> Dashboard</Link>
+          <Link to="/carousel-photos" style={navItemStyle('/carousel-photos')}><Image size={20} /> Carrusel</Link>
           <Link to="/events" style={navItemStyle('/events')}><Calendar size={20} /> Eventos</Link>
           <Link to="/categories" style={navItemStyle('/categories')}><Tags size={20} /> Categorías</Link>
           <Link to="/addons" style={navItemStyle('/addons')}><Shirt size={20} /> Adicionales</Link>
