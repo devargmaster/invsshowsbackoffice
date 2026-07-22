@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, Image as ImageIcon } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
 export function Events() {
@@ -7,6 +7,8 @@ export function Events() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -60,11 +62,13 @@ export function Events() {
       liveSellable: ev.livePriceCents != null,
       livePrice: ev.livePriceCents != null ? (ev.livePriceCents / 100).toString() : '',
     });
+    setPhotos(ev.photos ?? []);
     setShowModal(true);
   };
 
   const openCreateModal = () => {
     setEditingEvent(null);
+    setPhotos([]);
     setFormData({
       title: '',
       description: '',
@@ -80,6 +84,37 @@ export function Events() {
     setShowModal(true);
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingEvent) return;
+
+    setUploadingPhoto(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const updated = await apiClient.fetch(`/events/${editingEvent}/photos`, { method: 'POST', body: fd });
+      setPhotos(updated.photos);
+      setEvents(prev => prev.map(ev => ev.id === editingEvent ? updated : ev));
+    } catch (err: any) {
+      alert('Error al subir foto: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
+
+  const handlePhotoDelete = async (photoId: string) => {
+    if (!editingEvent) return;
+    if (!window.confirm('¿Eliminar esta foto?')) return;
+    try {
+      const updated = await apiClient.fetch(`/events/${editingEvent}/photos/${photoId}`, { method: 'DELETE' });
+      setPhotos(updated.photos);
+      setEvents(prev => prev.map(ev => ev.id === editingEvent ? updated : ev));
+    } catch (err: any) {
+      alert('Error al borrar foto: ' + (err.message || 'Error desconocido'));
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -88,16 +123,15 @@ export function Events() {
         ...rest,
         livePriceCents: liveSellable ? Math.round(parseFloat(livePrice || '0') * 100) : null,
       };
-      let finalEvent: any;
-
       if (editingEvent) {
         // Edit mode (status can be updated together)
-        finalEvent = await apiClient.patch<any>(`/events/${editingEvent}`, {
+        const finalEvent = await apiClient.patch<any>(`/events/${editingEvent}`, {
           ...dto,
           status,
           date: new Date(formData.date).toISOString()
         });
         setEvents(prev => prev.map(ev => ev.id === editingEvent ? finalEvent : ev));
+        setShowModal(false);
       } else {
         // Create mode
         const created = await apiClient.post<any>('/events', {
@@ -105,14 +139,16 @@ export function Events() {
           date: new Date(formData.date).toISOString()
         });
 
-        finalEvent = created;
+        let finalEvent = created;
         if (status !== 'DRAFT') {
           finalEvent = await apiClient.patch<any>(`/events/${created.id}`, { status });
         }
         setEvents(prev => [finalEvent, ...prev]);
+        // No cerramos el modal: pasamos a modo edición del evento recién creado
+        // para poder cargar sus fotos sin tener que volver a abrirlo.
+        setEditingEvent(finalEvent.id);
+        setPhotos(finalEvent.photos ?? []);
       }
-
-      setShowModal(false);
     } catch (e: any) {
       alert('Error al guardar evento: ' + (e.message || JSON.stringify(e)));
     }
@@ -136,6 +172,7 @@ export function Events() {
         <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #2D2D45' }}>
+              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500, width: 90 }}>Foto</th>
               <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Título</th>
               <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Fecha</th>
               <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Modalidad</th>
@@ -145,6 +182,13 @@ export function Events() {
           <tbody>
             {events.map(ev => (
               <tr key={ev.id} style={{ borderBottom: '1px solid #2D2D45' }}>
+                <td style={{ padding: '16px 24px' }}>
+                  <img
+                    src={ev.coverImageUrl}
+                    alt={ev.title}
+                    style={{ width: 64, height: 40, objectFit: 'cover', borderRadius: 6, border: '1px solid #2D2D45' }}
+                  />
+                </td>
                 <td style={{ padding: '16px 24px', fontWeight: 600 }}>{ev.title}</td>
                 <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{new Date(ev.date).toLocaleString()}</td>
                 <td style={{ padding: '16px 24px' }}>
@@ -184,6 +228,45 @@ export function Events() {
                 <option value="DRAFT">Borrador (DRAFT)</option>
                 <option value="PUBLISHED">Publicado (PUBLISHED)</option>
               </select>
+
+              <div style={{ borderTop: '1px solid #2D2D45', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <span style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>Fotos del evento</span>
+                {!editingEvent ? (
+                  <p style={{ color: '#8F8FA3', fontSize: 13, margin: 0 }}>
+                    Guardá el evento para poder cargar fotos.
+                  </p>
+                ) : (
+                  <>
+                    {photos.length > 0 && (
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        {photos.map(p => (
+                          <div key={p.id} style={{ position: 'relative' }}>
+                            <img
+                              src={p.url}
+                              alt=""
+                              style={{ width: 90, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #2D2D45' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handlePhotoDelete(p.id)}
+                              style={{ position: 'absolute', top: -8, right: -8, background: '#EF4444', border: 'none', borderRadius: '50%', width: 22, height: 22, color: '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {photos.length === 0 && (
+                      <p style={{ color: '#8F8FA3', fontSize: 13, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <ImageIcon size={16} /> Sin fotos propias — se muestra una imagen por defecto hasta que cargues alguna.
+                      </p>
+                    )}
+                    <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handlePhotoUpload} disabled={uploadingPhoto} style={{ color: '#B9B9C8', fontSize: 14 }} />
+                    {uploadingPhoto && <div style={{ color: '#A78BFA', fontSize: 12 }}>Subiendo imagen...</div>}
+                  </>
+                )}
+              </div>
 
               {formData.mode !== 'PRESENCIAL' && (
                 <div style={{ borderTop: '1px solid #2D2D45', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>

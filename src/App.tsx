@@ -11,7 +11,7 @@ import { Addons } from './pages/Addons';
 import { Content } from './pages/Content';
 import { ContentPurchases } from './pages/ContentPurchases';
 import { AdminLayout } from './components/AdminLayout';
-import { CarouselPhotos } from './pages/CarouselPhotos';
+import { PaymentSettings } from './pages/PaymentSettings';
 
 
 function App() {
@@ -22,7 +22,6 @@ function App() {
 
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/carousel-photos" element={<CarouselPhotos />} />
           <Route path="/events" element={<Events />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/addons" element={<Addons />} />
@@ -31,6 +30,7 @@ function App() {
           <Route path="/content-purchases" element={<ContentPurchases />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/payment-settings" element={<PaymentSettings />} />
         </Route>
       </Routes>
     </BrowserRouter>

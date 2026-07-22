@@ -1,16 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, Image } from 'lucide-react';
+import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, KeyRound } from 'lucide-react';
+import { apiClient } from '../apiClient';
 
 export function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [role, setRole] = useState<string | null>(null);
+  const isAdmin = role === 'ADMIN';
 
   useEffect(() => {
     if (!localStorage.getItem('invs_admin_token')) {
       navigate('/');
+      return;
     }
+    apiClient
+      .get<{ role: string }>('/users/me')
+      .then((me) => setRole(me.role))
+      .catch(() => {
+        /* apiClient ya maneja el 401 (logout + redirect) */
+      });
   }, [navigate]);
+
+  // Pantallas admin-only: si un STAFF navega directo por URL, lo mandamos al dashboard.
+  useEffect(() => {
+    if (role && !isAdmin && location.pathname === '/payment-settings') {
+      navigate('/dashboard');
+    }
+  }, [role, isAdmin, location.pathname, navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('invs_admin_token');
@@ -36,7 +53,6 @@ export function AdminLayout() {
         
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <Link to="/dashboard" style={navItemStyle('/dashboard')}><Activity size={20} /> Dashboard</Link>
-          <Link to="/carousel-photos" style={navItemStyle('/carousel-photos')}><Image size={20} /> Carrusel</Link>
           <Link to="/events" style={navItemStyle('/events')}><Calendar size={20} /> Eventos</Link>
           <Link to="/categories" style={navItemStyle('/categories')}><Tags size={20} /> Categorías</Link>
           <Link to="/addons" style={navItemStyle('/addons')}><Shirt size={20} /> Adicionales</Link>
@@ -45,6 +61,9 @@ export function AdminLayout() {
           <Link to="/content-purchases" style={navItemStyle('/content-purchases')}><Wallet size={20} /> Compras de Contenido</Link>
           <Link to="/tickets" style={navItemStyle('/tickets')}><Ticket size={20} /> Entradas</Link>
           <Link to="/users" style={navItemStyle('/users')}><Users size={20} /> Usuarios</Link>
+          {isAdmin && (
+            <Link to="/payment-settings" style={navItemStyle('/payment-settings')}><KeyRound size={20} /> Mercado Pago</Link>
+          )}
         </nav>
 
         <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#EF4444', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', fontWeight: 600 }}>
