@@ -98,7 +98,7 @@ export function Categories() {
   return (
     <div>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Categorías de Entrada</h1>
-      <p style={{ color: '#8F8FA3', marginBottom: 32 }}>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>
         Cada categoría puede tener su propio precio, horario de acceso y aforo (el límite de 50 simultáneos de Panda aplica por categoría, no por evento).
       </p>
 
@@ -112,40 +112,40 @@ export function Categories() {
         </button>
       </div>
 
-      {loading && <div style={{ color: '#8F8FA3' }}>Cargando categorías...</div>}
+      {loading && <div style={{ color: 'var(--color-text-muted)' }}>Cargando categorías...</div>}
 
       {!loading && selectedEventId && categories.length === 0 && (
-        <div style={{ color: '#8F8FA3', textAlign: 'center', marginTop: 40 }}>Este evento no tiene categorías todavía.</div>
+        <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>Este evento no tiene categorías todavía.</div>
       )}
 
       {!loading && categories.length > 0 && (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #2D2D45' }}>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Nombre</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Precio</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Aforo</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Estado</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Acciones</th>
+              <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Nombre</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Precio</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Aforo</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Estado</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {categories.map(cat => (
-                <tr key={cat.id} style={{ borderBottom: '1px solid #2D2D45', opacity: cat.isActive ? 1 : 0.5 }}>
+                <tr key={cat.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: cat.isActive ? 1 : 0.5 }}>
                   <td style={{ padding: '16px 24px', fontWeight: 600 }}>{cat.name}</td>
-                  <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{formatMoney(cat.priceCents, cat.currency)}</td>
-                  <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{cat.reservedCount} / {cat.maxCapacity}</td>
+                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{formatMoney(cat.priceCents, cat.currency)}</td>
+                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{cat.reservedCount} / {cat.maxCapacity}</td>
                   <td style={{ padding: '16px 24px' }}>
-                    <span style={{ backgroundColor: cat.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(143,143,163,0.2)', color: cat.isActive ? '#86EFAC' : '#8F8FA3', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
+                    <span style={{ backgroundColor: cat.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(143,143,163,0.2)', color: cat.isActive ? '#86EFAC' : 'var(--color-text-muted)', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
                       {cat.isActive ? 'ACTIVA' : 'INACTIVA'}
                     </span>
                   </td>
                   <td style={{ padding: '16px 24px', display: 'flex', gap: 8 }}>
-                    <button onClick={() => openEditModal(cat)} style={{ background: 'none', border: 'none', color: '#8F8FA3', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => openEditModal(cat)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 8 }}>
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => handleDelete(cat.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => handleDelete(cat.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 8 }}>
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -166,11 +166,11 @@ export function Categories() {
               <input className="input" type="number" step="0.01" placeholder="Precio en $ (ej: 15000)" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
               <input className="input" type="number" placeholder="Aforo máximo" value={formData.maxCapacity} onChange={e => setFormData({ ...formData, maxCapacity: e.target.value })} required />
               <div>
-                <label style={{ color: '#8F8FA3', fontSize: 13, display: 'block', marginBottom: 6 }}>Hora de ingreso propia (opcional, ej: VIP entra antes)</label>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 6 }}>Hora de ingreso propia (opcional, ej: VIP entra antes)</label>
                 <input className="input" type="datetime-local" value={formData.accessStartsAt} onChange={e => setFormData({ ...formData, accessStartsAt: e.target.value })} style={{ width: '100%', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid #2D2D45', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>
               </div>
             </form>

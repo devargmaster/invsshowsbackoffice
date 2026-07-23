@@ -154,14 +154,14 @@ export function Events() {
     }
   };
 
-  if (loading) return <div style={{ color: '#8F8FA3' }}>Cargando eventos...</div>;
+  if (loading) return <div style={{ color: 'var(--color-text-muted)' }}>Cargando eventos...</div>;
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
         <div>
           <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Gestión de Eventos</h1>
-          <p style={{ color: '#8F8FA3', margin: 0 }}>Creá, editá y publicá eventos.</p>
+          <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>Creá, editá y publicá eventos.</p>
         </div>
         <button className="btn-primary" onClick={openCreateModal}>
           <Plus size={20} /> Crear Evento
@@ -171,36 +171,36 @@ export function Events() {
       <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
         <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid #2D2D45' }}>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500, width: 90 }}>Foto</th>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Título</th>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Fecha</th>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Modalidad</th>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Acciones</th>
+            <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500, width: 90 }}>Foto</th>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Título</th>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Fecha</th>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Modalidad</th>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {events.map(ev => (
-              <tr key={ev.id} style={{ borderBottom: '1px solid #2D2D45' }}>
+              <tr key={ev.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <td style={{ padding: '16px 24px' }}>
                   <img
                     src={ev.coverImageUrl}
                     alt={ev.title}
-                    style={{ width: 64, height: 40, objectFit: 'cover', borderRadius: 6, border: '1px solid #2D2D45' }}
+                    style={{ width: 64, height: 40, objectFit: 'cover', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   />
                 </td>
                 <td style={{ padding: '16px 24px', fontWeight: 600 }}>{ev.title}</td>
-                <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{new Date(ev.date).toLocaleString()}</td>
+                <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{new Date(ev.date).toLocaleString()}</td>
                 <td style={{ padding: '16px 24px' }}>
-                  <span style={{ backgroundColor: '#181827', padding: '4px 10px', borderRadius: 20, fontSize: 13, color: '#A78BFA' }}>
+                  <span style={{ backgroundColor: 'var(--color-surface)', padding: '4px 10px', borderRadius: 20, fontSize: 13, color: 'var(--color-accent)' }}>
                     {ev.mode}
                   </span>
                 </td>
                 <td style={{ padding: '16px 24px', display: 'flex', gap: 8 }}>
-                  <button onClick={() => handleEditClick(ev)} style={{ background: 'none', border: 'none', color: '#8F8FA3', cursor: 'pointer', padding: 8 }}>
+                  <button onClick={() => handleEditClick(ev)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 8 }}>
                     <Edit2 size={18} />
                   </button>
-                  <button onClick={() => handleDelete(ev.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 8 }}>
+                  <button onClick={() => handleDelete(ev.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 8 }}>
                     <Trash2 size={18} />
                   </button>
                 </td>
@@ -229,10 +229,10 @@ export function Events() {
                 <option value="PUBLISHED">Publicado (PUBLISHED)</option>
               </select>
 
-              <div style={{ borderTop: '1px solid #2D2D45', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <span style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>Fotos del evento</span>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>Fotos del evento</span>
                 {!editingEvent ? (
-                  <p style={{ color: '#8F8FA3', fontSize: 13, margin: 0 }}>
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>
                     Guardá el evento para poder cargar fotos.
                   </p>
                 ) : (
@@ -244,12 +244,12 @@ export function Events() {
                             <img
                               src={p.url}
                               alt=""
-                              style={{ width: 90, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #2D2D45' }}
+                              style={{ width: 90, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--color-border)' }}
                             />
                             <button
                               type="button"
                               onClick={() => handlePhotoDelete(p.id)}
-                              style={{ position: 'absolute', top: -8, right: -8, background: '#EF4444', border: 'none', borderRadius: '50%', width: 22, height: 22, color: '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                              style={{ position: 'absolute', top: -8, right: -8, background: 'var(--color-danger)', border: 'none', borderRadius: '50%', width: 22, height: 22, color: '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                               <Trash2 size={12} />
                             </button>
@@ -258,42 +258,42 @@ export function Events() {
                       </div>
                     )}
                     {photos.length === 0 && (
-                      <p style={{ color: '#8F8FA3', fontSize: 13, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <ImageIcon size={16} /> Sin fotos propias — se muestra una imagen por defecto hasta que cargues alguna.
                       </p>
                     )}
-                    <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handlePhotoUpload} disabled={uploadingPhoto} style={{ color: '#B9B9C8', fontSize: 14 }} />
-                    {uploadingPhoto && <div style={{ color: '#A78BFA', fontSize: 12 }}>Subiendo imagen...</div>}
+                    <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handlePhotoUpload} disabled={uploadingPhoto} style={{ color: 'var(--color-text-secondary)', fontSize: 14 }} />
+                    {uploadingPhoto && <div style={{ color: 'var(--color-accent)', fontSize: 12 }}>Subiendo imagen...</div>}
                   </>
                 )}
               </div>
 
               {formData.mode !== 'PRESENCIAL' && (
-                <div style={{ borderTop: '1px solid #2D2D45', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <span style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>Acceso al streaming en vivo</span>
-                  <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>Acceso al streaming en vivo</span>
+                  <label style={{ color: 'var(--color-text-secondary)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <input type="checkbox" checked={formData.liveIsFree} onChange={e => setFormData({ ...formData, liveIsFree: e.target.checked })} />
                     Gratis para cualquier usuario logueado
                   </label>
-                  <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <label style={{ color: 'var(--color-text-secondary)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <input type="checkbox" checked={formData.liveIncludedInSubscription} onChange={e => setFormData({ ...formData, liveIncludedInSubscription: e.target.checked })} />
                     Incluido con una suscripción activa
                   </label>
-                  <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <label style={{ color: 'var(--color-text-secondary)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <input type="checkbox" checked={formData.liveSellable} onChange={e => setFormData({ ...formData, liveSellable: e.target.checked })} />
                     Vender por separado (pago único, pay-per-view)
                   </label>
                   {formData.liveSellable && (
                     <input className="input" type="number" step="0.01" placeholder="Precio en $ (ej: 1800)" value={formData.livePrice} onChange={e => setFormData({ ...formData, livePrice: e.target.value })} required />
                   )}
-                  <p style={{ color: '#8F8FA3', fontSize: 12, margin: '4px 0 0', lineHeight: 1.5 }}>
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: 12, margin: '4px 0 0', lineHeight: 1.5 }}>
                     Estos 3 modos no son excluyentes entre sí — podés combinarlos.
                   </p>
                 </div>
               )}
 
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid #2D2D45', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>
               </div>
             </form>

@@ -30,32 +30,32 @@ export function Users() {
     }
   };
 
-  if (loading) return <div style={{ color: '#8F8FA3' }}>Cargando usuarios...</div>;
+  if (loading) return <div style={{ color: 'var(--color-text-muted)' }}>Cargando usuarios...</div>;
 
   return (
     <div>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Gestión de Usuarios</h1>
-      <p style={{ color: '#8F8FA3', marginBottom: 32 }}>Administrá los permisos de los usuarios del sistema.</p>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>Administrá los permisos de los usuarios del sistema.</p>
 
       <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
         <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid #2D2D45' }}>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Nombre</th>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Email</th>
-              <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Rol</th>
+            <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Nombre</th>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Email</th>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Rol</th>
             </tr>
           </thead>
           <tbody>
             {users.map(u => (
-              <tr key={u.id} style={{ borderBottom: '1px solid #2D2D45' }}>
+              <tr key={u.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <td style={{ padding: '16px 24px', fontWeight: 600 }}>{u.fullName || '—'}</td>
-                <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{u.email}</td>
+                <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{u.email}</td>
                 <td style={{ padding: '16px 24px' }}>
                   <select 
                     value={u.role} 
                     onChange={e => handleRoleChange(u.id, e.target.value)}
-                    style={{ backgroundColor: '#181827', color: '#A78BFA', padding: '6px 12px', borderRadius: 8, border: '1px solid #2D2D45', outline: 'none', cursor: 'pointer' }}
+                    style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-accent)', padding: '6px 12px', borderRadius: 8, border: '1px solid var(--color-border)', outline: 'none', cursor: 'pointer' }}
                   >
                     <option value="USER">USER</option>
                     <option value="STAFF">STAFF</option>

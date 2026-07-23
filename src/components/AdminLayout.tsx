@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, KeyRound } from 'lucide-react';
+import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, KeyRound, Palette } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
 export function AdminLayout() {
@@ -24,7 +24,7 @@ export function AdminLayout() {
 
   // Pantallas admin-only: si un STAFF navega directo por URL, lo mandamos al dashboard.
   useEffect(() => {
-    if (role && !isAdmin && location.pathname === '/payment-settings') {
+    if (role && !isAdmin && (location.pathname === '/payment-settings' || location.pathname === '/appearance')) {
       navigate('/dashboard');
     }
   }, [role, isAdmin, location.pathname, navigate]);
@@ -40,7 +40,7 @@ export function AdminLayout() {
       display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
       borderRadius: 12, textDecoration: 'none',
       backgroundColor: isActive ? 'rgba(124, 58, 237, 0.2)' : 'transparent',
-      color: isActive ? '#A78BFA' : '#8F8FA3',
+      color: isActive ? 'var(--color-accent)' : 'var(--color-text-muted)',
       fontWeight: isActive ? 600 : 400,
       transition: 'all 0.2s'
     };
@@ -64,9 +64,12 @@ export function AdminLayout() {
           {isAdmin && (
             <Link to="/payment-settings" style={navItemStyle('/payment-settings')}><KeyRound size={20} /> Mercado Pago</Link>
           )}
+          {isAdmin && (
+            <Link to="/appearance" style={navItemStyle('/appearance')}><Palette size={20} /> Apariencia</Link>
+          )}
         </nav>
 
-        <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#EF4444', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', fontWeight: 600 }}>
+        <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer', fontWeight: 600 }}>
           <LogOut size={20} /> Cerrar Sesión
         </button>
       </aside>

@@ -13,6 +13,19 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Paleta configurable desde /appearance (ThemeBootstrap la pisa en
+     runtime) — mismos nombres/valores default que invs-web/src/index.css. */
+  --color-bg: #0B0B12;
+  --color-surface: #13131F;
+  --color-border: #1E1E33;
+  --color-accent: #A78BFA;
+  --color-accent-hover: #8B5CF6;
+  --color-text: #F0F0F5;
+  --color-text-secondary: #C4C4D4;
+  --color-text-muted: #8F8FA3;
+  --color-success: #22C55E;
+  --color-danger: #EF4444;
 }
 
 body {
@@ -37,8 +50,8 @@ body {
 }
 
 .input {
-  background-color: #181827;
-  border: 1px solid #2D2D45;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 14px 16px;
   color: #FFF;
@@ -51,9 +64,12 @@ body {
 
 .input:focus {
   outline: none;
-  border-color: #A78BFA;
+  border-color: var(--color-accent);
 }
 
+/* Fondo sólido a propósito, NO themizado: es más oscuro que --color-accent
+   para garantizar contraste con el texto blanco. Si un admin elige un
+   acento claro, themizar esto volvería el botón ilegible. */
 .btn-primary {
   background-color: #7C3AED;
   color: #FFF;

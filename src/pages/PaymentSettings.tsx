@@ -64,13 +64,13 @@ export function PaymentSettings() {
     }
   };
 
-  if (loading) return <div style={{ color: '#8F8FA3' }}>Cargando configuración de pagos...</div>;
+  if (loading) return <div style={{ color: 'var(--color-text-muted)' }}>Cargando configuración de pagos...</div>;
 
   return (
     <div>
       <div style={{ marginBottom: 32 }}>
         <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Mercado Pago</h1>
-        <p style={{ color: '#8F8FA3', margin: 0 }}>
+        <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>
           Credenciales de Mercado Pago para el checkout de INVS. Se guardan cifradas — quien administre esta
           pantalla puede reemplazarlas en cualquier momento (por ejemplo, para pasar de una cuenta de prueba a la
           cuenta real) sin necesitar un redeploy.
@@ -95,7 +95,7 @@ export function PaymentSettings() {
 
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <label style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>Ambiente</label>
+            <label style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>Ambiente</label>
             <select
               className="input"
               value={formData.environment}
@@ -107,7 +107,7 @@ export function PaymentSettings() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <label style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>Access Token</label>
+            <label style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>Access Token</label>
             <input
               className="input"
               type="password"
@@ -119,7 +119,7 @@ export function PaymentSettings() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <label style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>Public Key</label>
+            <label style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>Public Key</label>
             <input
               className="input"
               placeholder="APP_USR-... / TEST-..."
@@ -129,7 +129,7 @@ export function PaymentSettings() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <label style={{ color: '#8F8FA3', fontSize: 13, fontWeight: 600 }}>
+            <label style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>
               Clave secreta de webhooks {settings?.webhookConfigured && <span style={{ color: '#86EFAC' }}>(configurada)</span>}
             </label>
             <input

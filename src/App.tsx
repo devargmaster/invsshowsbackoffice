@@ -12,11 +12,14 @@ import { Content } from './pages/Content';
 import { ContentPurchases } from './pages/ContentPurchases';
 import { AdminLayout } from './components/AdminLayout';
 import { PaymentSettings } from './pages/PaymentSettings';
+import { Appearance } from './pages/Appearance';
+import { ThemeBootstrap } from './theme/ThemeBootstrap';
 
 
 function App() {
   return (
     <BrowserRouter>
+      <ThemeBootstrap />
       <Routes>
         <Route path="/" element={<Login />} />
 
@@ -31,6 +34,7 @@ function App() {
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/users" element={<Users />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
+          <Route path="/appearance" element={<Appearance />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -13,7 +13,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   PENDING_PAYMENT: { bg: 'rgba(251, 191, 36, 0.2)', fg: '#FBBF24' },
   ACTIVE: { bg: 'rgba(34, 197, 94, 0.2)', fg: '#86EFAC' },
   USED: { bg: 'rgba(239, 68, 68, 0.2)', fg: '#FCA5A5' },
-  CANCELLED: { bg: 'rgba(143, 143, 163, 0.2)', fg: '#8F8FA3' },
+  CANCELLED: { bg: 'rgba(143, 143, 163, 0.2)', fg: 'var(--color-text-muted)' },
 };
 
 export function Tickets() {
@@ -65,7 +65,7 @@ export function Tickets() {
   return (
     <div>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Gestión de Entradas</h1>
-      <p style={{ color: '#8F8FA3', marginBottom: 32 }}>Buscá un evento para ver las entradas vendidas.</p>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>Buscá un evento para ver las entradas vendidas.</p>
 
       <div className="glass" style={{ padding: 24, borderRadius: 16, display: 'flex', gap: 16, marginBottom: 32 }}>
         <select
@@ -84,17 +84,17 @@ export function Tickets() {
         </button>
       </div>
 
-      {loading && <div style={{ color: '#8F8FA3' }}>Cargando entradas...</div>}
+      {loading && <div style={{ color: 'var(--color-text-muted)' }}>Cargando entradas...</div>}
 
       {!loading && tickets.length > 0 && (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #2D2D45' }}>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>ID Ticket</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Categoría</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Asistente</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Estado</th>
+              <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>ID Ticket</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Categoría</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Asistente</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Estado</th>
               </tr>
             </thead>
             <tbody>
@@ -105,13 +105,13 @@ export function Tickets() {
                 return (
                   <tr
                     key={t.id}
-                    style={{ borderBottom: '1px solid #2D2D45', cursor: 'pointer', transition: 'background 0.2s' }}
+                    style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer', transition: 'background 0.2s' }}
                     onClick={() => setSelectedTicket(t)}
                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'}
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <td style={{ padding: '16px 24px', color: '#B9B9C8', fontSize: 13 }}>{t.id}</td>
-                    <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{t.category?.name ?? '—'}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)', fontSize: 13 }}>{t.id}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{t.category?.name ?? '—'}</td>
                     <td style={{ padding: '16px 24px', fontWeight: 600 }}>{attendee}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <span style={{
@@ -131,7 +131,7 @@ export function Tickets() {
       )}
 
       {!loading && selectedEventId && tickets.length === 0 && (
-        <div style={{ color: '#8F8FA3', textAlign: 'center', marginTop: 40 }}>
+        <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>
           No se encontraron entradas para este evento.
         </div>
       )}
@@ -142,26 +142,26 @@ export function Tickets() {
             <h2 style={{ marginTop: 0, marginBottom: 24 }}>Detalle de la entrada</h2>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>Categoría</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Categoría</div>
               <div style={{ fontSize: 16, fontWeight: 500 }}>{selectedTicket.category?.name ?? '—'}</div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>Titular (holder)</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Titular (holder)</div>
               <div style={{ fontSize: 16, fontWeight: 500 }}>
                 {selectedTicket.holder?.fullName ?? 'Sin asignar'} {selectedTicket.holder?.email ? `(${selectedTicket.holder.email})` : ''}
               </div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>Comprador</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Comprador</div>
               <div style={{ fontSize: 16, fontWeight: 500 }}>
                 {selectedTicket.purchaser?.fullName ?? 'N/A'} {selectedTicket.purchaser?.email ? `(${selectedTicket.purchaser.email})` : ''}
               </div>
             </div>
 
             <div style={{ marginBottom: 24 }}>
-              <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>Estado</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Estado</div>
               {selectedTicket.status === 'USED' ? (
                 <div style={{ color: '#FCA5A5', fontWeight: 600 }}>UTILIZADO el {new Date(selectedTicket.usedAt).toLocaleString()}</div>
               ) : (

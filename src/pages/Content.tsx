@@ -110,7 +110,7 @@ export function Content() {
     }
   };
 
-  if (loading) return <div style={{ color: '#8F8FA3' }}>Cargando contenido...</div>;
+  if (loading) return <div style={{ color: 'var(--color-text-muted)' }}>Cargando contenido...</div>;
 
   return (
     <div>
@@ -120,29 +120,29 @@ export function Content() {
           <Plus size={20} /> Nueva grabación
         </button>
       </div>
-      <p style={{ color: '#8F8FA3', marginBottom: 32 }}>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>
         Grabaciones que INVS comparte en la sección Streaming — cada una puede ser gratis, incluida en la suscripción, y/o vendida suelta (los tres modos son combinables, no excluyentes).
       </p>
 
       {recordings.length === 0 ? (
-        <div style={{ color: '#8F8FA3', textAlign: 'center', marginTop: 40 }}>No hay grabaciones cargadas todavía.</div>
+        <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>No hay grabaciones cargadas todavía.</div>
       ) : (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #2D2D45' }}>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Título</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Evento</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Acceso</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Precio suelto</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Acciones</th>
+              <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Título</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Evento</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Acceso</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Precio suelto</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {recordings.map(rec => (
-                <tr key={rec.id} style={{ borderBottom: '1px solid #2D2D45' }}>
+                <tr key={rec.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                   <td style={{ padding: '16px 24px', fontWeight: 600 }}>{rec.title}</td>
-                  <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{rec.event?.title ?? '— (suelto)'}</td>
+                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{rec.event?.title ?? '— (suelto)'}</td>
                   <td style={{ padding: '16px 24px', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {rec.isFree && (
                       <span style={{ backgroundColor: 'rgba(34,197,94,0.2)', color: '#86EFAC', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>GRATIS</span>
@@ -154,12 +154,12 @@ export function Content() {
                       <span style={{ backgroundColor: 'rgba(251,191,36,0.2)', color: '#FBBF24', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>COMPRA</span>
                     )}
                   </td>
-                  <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{rec.priceCents != null ? formatMoney(rec.priceCents, rec.currency) : '—'}</td>
+                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{rec.priceCents != null ? formatMoney(rec.priceCents, rec.currency) : '—'}</td>
                   <td style={{ padding: '16px 24px', display: 'flex', gap: 8 }}>
-                    <button onClick={() => openEditModal(rec)} style={{ background: 'none', border: 'none', color: '#8F8FA3', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => openEditModal(rec)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 8 }}>
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => handleDelete(rec.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => handleDelete(rec.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 8 }}>
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -179,7 +179,7 @@ export function Content() {
               <textarea className="input" placeholder="Descripción (opcional)" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} />
 
               <div>
-                <label style={{ color: '#8F8FA3', fontSize: 13, display: 'block', marginBottom: 6 }}>Evento vinculado (opcional — dejalo vacío para contenido suelto)</label>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 6 }}>Evento vinculado (opcional — dejalo vacío para contenido suelto)</label>
                 <select className="input" value={formData.eventId} onChange={e => setFormData({ ...formData, eventId: e.target.value })} style={{ width: '100%', boxSizing: 'border-box' }}>
                   <option value="">Sin evento (contenido suelto)</option>
                   {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
@@ -187,36 +187,36 @@ export function Content() {
               </div>
 
               <div>
-                <label style={{ color: '#8F8FA3', fontSize: 13, display: 'block', marginBottom: 6 }}>Fuente del video — cargá una URL de YouTube O los IDs de Mux</label>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 6 }}>Fuente del video — cargá una URL de YouTube O los IDs de Mux</label>
                 <input className="input" placeholder="URL de YouTube (ej: https://www.youtube.com/watch?v=...)" value={formData.videoUrl} onChange={e => setFormData({ ...formData, videoUrl: e.target.value })} style={{ width: '100%', boxSizing: 'border-box' }} />
               </div>
               <input className="input" placeholder="Mux Asset ID (solo si no usás URL)" value={formData.muxAssetId} onChange={e => setFormData({ ...formData, muxAssetId: e.target.value })} />
               <input className="input" placeholder="Mux Playback ID (solo si no usás URL)" value={formData.muxPlaybackId} onChange={e => setFormData({ ...formData, muxPlaybackId: e.target.value })} />
               <input className="input" placeholder="URL de thumbnail (opcional)" value={formData.thumbnailUrl} onChange={e => setFormData({ ...formData, thumbnailUrl: e.target.value })} />
 
-              <div style={{ borderTop: '1px solid #2D2D45', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <label style={{ color: 'var(--color-text-secondary)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <input type="checkbox" checked={formData.isFree} onChange={e => setFormData({ ...formData, isFree: e.target.checked })} />
                   Gratis para cualquier usuario logueado
                 </label>
-                <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ color: 'var(--color-text-secondary)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <input type="checkbox" checked={formData.includedInSubscription} onChange={e => setFormData({ ...formData, includedInSubscription: e.target.checked })} />
                   Incluido con una suscripción activa
                 </label>
-                <label style={{ color: '#B9B9C8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ color: 'var(--color-text-secondary)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <input type="checkbox" checked={formData.sellable} onChange={e => setFormData({ ...formData, sellable: e.target.checked })} />
                   Vender por separado (pago único)
                 </label>
                 {formData.sellable && (
                   <input className="input" type="number" step="0.01" placeholder="Precio en $ (ej: 2500)" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
                 )}
-                <p style={{ color: '#8F8FA3', fontSize: 12, margin: '4px 0 0', lineHeight: 1.5 }}>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: 12, margin: '4px 0 0', lineHeight: 1.5 }}>
                   Estos 3 modos no son excluyentes — un video puede estar incluido en la suscripción y ADEMÁS venderse suelto para quien no está suscripto.
                 </p>
               </div>
 
               <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid #2D2D45', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>
               </div>
             </form>

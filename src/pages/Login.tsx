@@ -31,7 +31,7 @@ export function Login() {
     <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div className="glass" style={{ width: '100%', maxWidth: 400, padding: 40, borderRadius: 24 }}>
         <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: 2, textAlign: 'center' }}>INVS</h1>
-        <p style={{ color: '#8F8FA3', textAlign: 'center', marginBottom: 32 }}>Backoffice Access</p>
+        <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginBottom: 32 }}>Backoffice Access</p>
         
         {error && <div style={{ backgroundColor: '#3D1515', color: '#FCA5A5', padding: 12, borderRadius: 8, marginBottom: 16, fontSize: 14 }}>{error}</div>}
         

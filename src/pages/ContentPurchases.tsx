@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   PENDING_PAYMENT: { bg: 'rgba(251, 191, 36, 0.2)', fg: '#FBBF24' },
   PAID: { bg: 'rgba(34, 197, 94, 0.2)', fg: '#86EFAC' },
   FAILED: { bg: 'rgba(239, 68, 68, 0.2)', fg: '#FCA5A5' },
-  CANCELLED: { bg: 'rgba(143, 143, 163, 0.2)', fg: '#8F8FA3' },
+  CANCELLED: { bg: 'rgba(143, 143, 163, 0.2)', fg: 'var(--color-text-muted)' },
 };
 
 function formatMoney(cents: number, currency = 'ARS') {
@@ -83,12 +83,12 @@ export function ContentPurchases() {
     }
   };
 
-  if (loading) return <div style={{ color: '#8F8FA3' }}>Cargando compras de contenido...</div>;
+  if (loading) return <div style={{ color: 'var(--color-text-muted)' }}>Cargando compras de contenido...</div>;
 
   return (
     <div>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Compras de Contenido</h1>
-      <p style={{ color: '#8F8FA3', marginBottom: 32 }}>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>
         Validá los comprobantes de compras sueltas (grabaciones o vivo pay-per-view) para habilitar el acceso.
       </p>
 
@@ -102,19 +102,19 @@ export function ContentPurchases() {
       </div>
 
       {purchases.length === 0 ? (
-        <div style={{ color: '#8F8FA3', textAlign: 'center', marginTop: 40 }}>
+        <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>
           No hay compras de contenido por transferencia en este estado.
         </div>
       ) : (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #2D2D45' }}>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Comprador</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Contenido</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Tipo</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Precio</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Estado</th>
+              <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Comprador</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Contenido</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Tipo</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Precio</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Estado</th>
               </tr>
             </thead>
             <tbody>
@@ -123,14 +123,14 @@ export function ContentPurchases() {
                 return (
                   <tr
                     key={p.id}
-                    style={{ borderBottom: '1px solid #2D2D45', cursor: 'pointer' }}
+                    style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer' }}
                     onClick={() => setSelected(p)}
                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'}
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <td style={{ padding: '16px 24px', fontWeight: 600 }}>{p.user?.fullName || p.user?.email}</td>
-                    <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{contentTitle(p)}</td>
-                    <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{p.recordingId ? 'Grabación' : 'Vivo'}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{contentTitle(p)}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{p.recordingId ? 'Grabación' : 'Vivo'}</td>
                     <td style={{ padding: '16px 24px', fontWeight: 600 }}>{formatMoney(p.priceCents, p.currency)}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <span style={{ backgroundColor: colors.bg, color: colors.fg, padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
@@ -151,36 +151,36 @@ export function ContentPurchases() {
             <h2 style={{ marginTop: 0, marginBottom: 24 }}>Compra de {selected.user?.fullName ?? selected.user?.email}</h2>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>Contenido</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Contenido</div>
               <div style={{ fontSize: 15, fontWeight: 600 }}>{contentTitle(selected)}</div>
-              <div style={{ fontSize: 13, color: '#8F8FA3', marginTop: 2 }}>{selected.recordingId ? 'Grabación' : 'Acceso en vivo (pay-per-view)'}</div>
+              <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{selected.recordingId ? 'Grabación' : 'Acceso en vivo (pay-per-view)'}</div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>Precio</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#A78BFA' }}>{formatMoney(selected.priceCents, selected.currency)}</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Precio</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-accent)' }}>{formatMoney(selected.priceCents, selected.currency)}</div>
             </div>
 
             {selected.transferReference && (
               <div style={{ marginBottom: 16 }}>
-                <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 4 }}>Referencia</div>
+                <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Referencia</div>
                 <div style={{ fontSize: 14, fontFamily: 'monospace' }}>{selected.transferReference}</div>
               </div>
             )}
 
             <div style={{ marginBottom: 24 }}>
-              <div style={{ color: '#8F8FA3', fontSize: 13, marginBottom: 8 }}>Comprobante</div>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 8 }}>Comprobante</div>
               {selected.transferProofUrl ? (
                 <a
                   href={`${FILES_BASE_URL}${selected.transferProofUrl}`}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#A78BFA', textDecoration: 'none', fontWeight: 600 }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}
                 >
                   <ExternalLink size={16} /> Ver comprobante
                 </a>
               ) : (
-                <div style={{ color: '#8F8FA3', fontSize: 14 }}>Todavía no subió comprobante.</div>
+                <div style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Todavía no subió comprobante.</div>
               )}
             </div>
 
@@ -198,7 +198,7 @@ export function ContentPurchases() {
                   <button
                     onClick={() => handleValidate(false)}
                     disabled={processing}
-                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14, borderRadius: 12, border: '1px solid #EF4444', background: 'transparent', color: '#EF4444', cursor: 'pointer', fontWeight: 600 }}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14, borderRadius: 12, border: '1px solid var(--color-danger)', background: 'transparent', color: 'var(--color-danger)', cursor: 'pointer', fontWeight: 600 }}
                   >
                     <X size={18} /> Rechazar
                   </button>
@@ -221,7 +221,7 @@ export function ContentPurchases() {
 
             <button
               onClick={() => { setSelected(null); setRejectionReason(''); }}
-              style={{ width: '100%', marginTop: 16, padding: 12, borderRadius: 12, border: '1px solid #2D2D45', background: 'transparent', color: '#8F8FA3', cursor: 'pointer' }}
+              style={{ width: '100%', marginTop: 16, padding: 12, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: 'var(--color-text-muted)', cursor: 'pointer' }}
             >
               Cerrar
             </button>

@@ -127,7 +127,7 @@ export function Addons() {
   return (
     <div>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Adicionales</h1>
-      <p style={{ color: '#8F8FA3', marginBottom: 32 }}>Remeras, cuadros dorados, conmemorativos — extras para decorar la experiencia.</p>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>Remeras, cuadros dorados, conmemorativos — extras para decorar la experiencia.</p>
 
       <div className="glass" style={{ padding: 16, borderRadius: 16, marginBottom: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
         <select className="input" value={selectedEventId} onChange={e => setSelectedEventId(e.target.value)} style={{ flex: 1 }}>
@@ -139,42 +139,42 @@ export function Addons() {
         </button>
       </div>
 
-      {loading && <div style={{ color: '#8F8FA3' }}>Cargando adicionales...</div>}
+      {loading && <div style={{ color: 'var(--color-text-muted)' }}>Cargando adicionales...</div>}
 
       {!loading && selectedEventId && addons.length === 0 && (
-        <div style={{ color: '#8F8FA3', textAlign: 'center', marginTop: 40 }}>Este evento no tiene adicionales todavía.</div>
+        <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>Este evento no tiene adicionales todavía.</div>
       )}
 
       {!loading && addons.length > 0 && (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #2D2D45' }}>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Nombre</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Precio</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Variantes</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Estado</th>
-                <th style={{ padding: '16px 24px', color: '#8F8FA3', fontWeight: 500 }}>Acciones</th>
+              <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Nombre</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Precio</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Variantes</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Estado</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {addons.map(addon => (
-                <tr key={addon.id} style={{ borderBottom: '1px solid #2D2D45', opacity: addon.isActive ? 1 : 0.5 }}>
+                <tr key={addon.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: addon.isActive ? 1 : 0.5 }}>
                   <td style={{ padding: '16px 24px', fontWeight: 600 }}>{addon.name}</td>
-                  <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>{formatMoney(addon.priceCents, addon.currency)}</td>
-                  <td style={{ padding: '16px 24px', color: '#B9B9C8' }}>
+                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{formatMoney(addon.priceCents, addon.currency)}</td>
+                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>
                     {addon.hasVariants ? (addon.variants?.map((v: any) => v.label).join(', ') || '—') : 'Sin variantes'}
                   </td>
                   <td style={{ padding: '16px 24px' }}>
-                    <span style={{ backgroundColor: addon.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(143,143,163,0.2)', color: addon.isActive ? '#86EFAC' : '#8F8FA3', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
+                    <span style={{ backgroundColor: addon.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(143,143,163,0.2)', color: addon.isActive ? '#86EFAC' : 'var(--color-text-muted)', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
                       {addon.isActive ? 'ACTIVO' : 'INACTIVO'}
                     </span>
                   </td>
                   <td style={{ padding: '16px 24px', display: 'flex', gap: 8 }}>
-                    <button onClick={() => openEditModal(addon)} style={{ background: 'none', border: 'none', color: '#8F8FA3', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => openEditModal(addon)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 8 }}>
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => handleDelete(addon.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => handleDelete(addon.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 8 }}>
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -196,7 +196,7 @@ export function Addons() {
 
               {!editingAddon && (
                 <>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#B9B9C8', fontSize: 14 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-secondary)', fontSize: 14 }}>
                     <input type="checkbox" checked={formData.hasVariants} onChange={e => setFormData({ ...formData, hasVariants: e.target.checked })} />
                     Tiene variantes (ej: talles)
                   </label>
@@ -213,12 +213,12 @@ export function Addons() {
 
               {editingAddon?.hasVariants && (
                 <div>
-                  <label style={{ color: '#8F8FA3', fontSize: 13, display: 'block', marginBottom: 8 }}>Variantes</label>
+                  <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 8 }}>Variantes</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
                     {editingAddon.variants?.map((v: any) => (
-                      <span key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#181827', padding: '6px 10px', borderRadius: 20, fontSize: 13 }}>
+                      <span key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--color-surface)', padding: '6px 10px', borderRadius: 20, fontSize: 13 }}>
                         {v.label}
-                        <button type="button" onClick={() => handleRemoveVariant(v.id)} style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', display: 'flex' }}>
+                        <button type="button" onClick={() => handleRemoveVariant(v.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', display: 'flex' }}>
                           <X size={14} />
                         </button>
                       </span>
@@ -232,7 +232,7 @@ export function Addons() {
               )}
 
               <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid #2D2D45', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>
               </div>
             </form>
