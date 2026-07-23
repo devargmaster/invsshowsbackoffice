@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { apiClient } from '../apiClient';
-import { applyTheme, cssVarFor, THEME_CACHE_KEY, type ThemePalette } from '../theme/applyTheme';
+import { applyTheme, cssVarFor, DEFAULT_THEME, THEME_CACHE_KEY, type ThemePalette } from '../theme/applyTheme';
 
 const PALETTE_FIELDS: { key: keyof ThemePalette; label: string }[] = [
   { key: 'colorBg', label: 'Fondo' },
@@ -47,6 +47,13 @@ export function Appearance() {
     document.documentElement.style.setProperty(cssVarFor(key), value);
   };
 
+  // Solo actualiza el preview en vivo y el form — no guarda solo. El admin
+  // decide si confirma con "Guardar" o sigue ajustando desde acá.
+  const handleResetToDefaults = () => {
+    setFormData(DEFAULT_THEME);
+    applyTheme(DEFAULT_THEME);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData) return;
@@ -90,9 +97,22 @@ export function Appearance() {
               </div>
             ))}
 
-          <button type="submit" className="btn-primary" disabled={saving} style={{ marginTop: 8 }}>
-            {saving ? 'Guardando...' : 'Guardar'}
-          </button>
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={handleResetToDefaults}
+              disabled={saving}
+              style={{
+                flex: 1, padding: '14px 24px', borderRadius: 12, border: '1px solid var(--color-border)',
+                background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', fontSize: 15, fontWeight: 600,
+              }}
+            >
+              Restablecer defaults
+            </button>
+            <button type="submit" className="btn-primary" disabled={saving} style={{ flex: 1 }}>
+              {saving ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

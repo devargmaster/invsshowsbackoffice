@@ -3,11 +3,25 @@ import { apiClient } from '../apiClient';
 
 export function Dashboard() {
   const [events, setEvents] = useState<any[]>([]);
+  const [apiOnline, setApiOnline] = useState<boolean | null>(null); // null = todavía no se sabe
 
   useEffect(() => {
-    apiClient.get<any[]>('/events')
-      .then(setEvents)
-      .catch(console.error);
+    const checkStatus = () => {
+      apiClient.get<any[]>('/events')
+        .then((data) => {
+          setEvents(data);
+          setApiOnline(true);
+        })
+        .catch((err) => {
+          console.error(err);
+          setApiOnline(false);
+        });
+    };
+    checkStatus();
+    // "Resumen del sistema en tiempo real" — sin esto, el estado quedaba
+    // pegado en lo que haya dado la carga inicial de la página.
+    const interval = setInterval(checkStatus, 30_000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -23,8 +37,15 @@ export function Dashboard() {
         
         <div className="glass" style={{ padding: 24, borderRadius: 16 }}>
           <div style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 8 }}>Estado de API</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 18, fontWeight: 600, color: 'var(--color-success)' }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: 'var(--color-success)' }} /> Online
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8, fontSize: 18, fontWeight: 600,
+            color: apiOnline === null ? 'var(--color-text-muted)' : apiOnline ? 'var(--color-success)' : 'var(--color-danger)',
+          }}>
+            <div style={{
+              width: 10, height: 10, borderRadius: '50%',
+              backgroundColor: apiOnline === null ? 'var(--color-text-muted)' : apiOnline ? 'var(--color-success)' : 'var(--color-danger)',
+            }} />
+            {apiOnline === null ? 'Verificando...' : apiOnline ? 'Online' : 'Offline'}
           </div>
         </div>
       </div>
