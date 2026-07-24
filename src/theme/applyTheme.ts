@@ -17,17 +17,31 @@ export const THEME_CACHE_KEY = 'invs_theme_cache';
 // — para el botón "Restablecer" de /appearance, así el admin puede volver
 // atrás si experimenta y no se acuerda cuáles eran los colores originales.
 export const DEFAULT_THEME: ThemePalette = {
-  colorBg: '#0B0B12',
-  colorSurface: '#13131F',
-  colorBorder: '#1E1E33',
-  colorAccent: '#A78BFA',
-  colorAccentHover: '#8B5CF6',
-  colorText: '#F0F0F5',
-  colorTextSecondary: '#C4C4D4',
-  colorTextMuted: '#8F8FA3',
-  colorSuccess: '#22C55E',
-  colorDanger: '#EF4444',
+  colorBg: '#0B0C0E',
+  colorSurface: '#15171A',
+  colorBorder: '#30343A',
+  colorAccent: '#D9F5F8',
+  colorAccentHover: '#F4FEFF',
+  colorText: '#F4F4F2',
+  colorTextSecondary: '#B8BBC0',
+  colorTextMuted: '#7C8188',
+  colorSuccess: '#3DCC8C',
+  colorDanger: '#FF626A',
 };
+
+// Módulos de invs-web que admiten override parcial de paleta — el
+// backoffice en sí no se subdivide, se queda con un único tema (ver
+// ThemeModuleOverride en invs-backend).
+export type ThemeModuleKey = 'EVENTS' | 'STREAMING';
+
+export const THEME_MODULES: { key: ThemeModuleKey; label: string }[] = [
+  { key: 'EVENTS', label: 'Eventos' },
+  { key: 'STREAMING', label: 'Streaming' },
+];
+
+// Override crudo de un módulo: cada color es hex (personalizado) o null
+// (hereda el valor global). Refleja 1:1 lo que expone el backend.
+export type ThemeModuleOverride = Record<keyof ThemePalette, string | null>;
 
 const CSS_VAR_BY_KEY: Record<keyof ThemePalette, string> = {
   colorBg: '--color-bg',
