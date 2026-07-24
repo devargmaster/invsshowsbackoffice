@@ -92,6 +92,7 @@ export function Tickets() {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>ID Ticket</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Fecha de compra</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Categoría</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Asistente</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Estado</th>
@@ -111,6 +112,9 @@ export function Tickets() {
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)', fontSize: 13 }}>{t.id}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>
+                      {new Date(t.createdAt).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </td>
                     <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{t.category?.name ?? '—'}</td>
                     <td style={{ padding: '16px 24px', fontWeight: 600 }}>{attendee}</td>
                     <td style={{ padding: '16px 24px' }}>
@@ -158,6 +162,11 @@ export function Tickets() {
               <div style={{ fontSize: 16, fontWeight: 500 }}>
                 {selectedTicket.purchaser?.fullName ?? 'N/A'} {selectedTicket.purchaser?.email ? `(${selectedTicket.purchaser.email})` : ''}
               </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Fecha de compra</div>
+              <div style={{ fontSize: 16, fontWeight: 500 }}>{new Date(selectedTicket.createdAt).toLocaleString('es-AR')}</div>
             </div>
 
             <div style={{ marginBottom: 24 }}>
