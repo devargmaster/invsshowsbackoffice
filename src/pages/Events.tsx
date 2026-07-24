@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, Edit2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Edit2, Image as ImageIcon, Radio } from 'lucide-react';
 import { apiClient } from '../apiClient';
+
+interface StreamCreationResult {
+  provider: string;
+  streamId: string;
+  streamKey?: string;
+  ingestUrl?: string;
+  playbackId?: string;
+  instructions?: string;
+}
 
 export function Events() {
   const [events, setEvents] = useState<any[]>([]);
@@ -9,6 +18,10 @@ export function Events() {
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [photos, setPhotos] = useState<any[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [creatingStream, setCreatingStream] = useState(false);
+  // Mux solo devuelve la stream key en el momento de crearla — no hay forma
+  // de volver a pedirla después, así que la mostramos una vez acá y listo.
+  const [streamResult, setStreamResult] = useState<StreamCreationResult | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -63,12 +76,14 @@ export function Events() {
       livePrice: ev.livePriceCents != null ? (ev.livePriceCents / 100).toString() : '',
     });
     setPhotos(ev.photos ?? []);
+    setStreamResult(null);
     setShowModal(true);
   };
 
   const openCreateModal = () => {
     setEditingEvent(null);
     setPhotos([]);
+    setStreamResult(null);
     setFormData({
       title: '',
       description: '',
@@ -112,6 +127,20 @@ export function Events() {
       setEvents(prev => prev.map(ev => ev.id === editingEvent ? updated : ev));
     } catch (err: any) {
       alert('Error al borrar foto: ' + (err.message || 'Error desconocido'));
+    }
+  };
+
+  const handleCreateStream = async () => {
+    if (!editingEvent) return;
+    if (!window.confirm('¿Crear un nuevo live stream para este evento? Si ya había uno, se reemplaza.')) return;
+    setCreatingStream(true);
+    try {
+      const result = await apiClient.post<StreamCreationResult>(`/streaming/${editingEvent}/create`);
+      setStreamResult(result);
+    } catch (err: any) {
+      alert('Error al crear el stream: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setCreatingStream(false);
     }
   };
 
@@ -289,6 +318,52 @@ export function Events() {
                   <p style={{ color: 'var(--color-text-muted)', fontSize: 12, margin: '4px 0 0', lineHeight: 1.5 }}>
                     Estos 3 modos no son excluyentes entre sí — podés combinarlos.
                   </p>
+                </div>
+              )}
+
+              {formData.mode !== 'PRESENCIAL' && (
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Radio size={15} /> Live stream (Mux)
+                  </span>
+                  {!editingEvent ? (
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>
+                      Guardá el evento para poder crear el stream.
+                    </p>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleCreateStream}
+                        disabled={creatingStream}
+                        style={{
+                          alignSelf: 'flex-start', padding: '10px 16px', borderRadius: 10,
+                          border: '1px solid var(--color-border)', background: 'transparent',
+                          color: 'var(--color-text)', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                        }}
+                      >
+                        {creatingStream ? 'Creando...' : 'Crear / regenerar stream'}
+                      </button>
+                      {streamResult && (
+                        <div style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <p style={{ color: 'var(--color-success)', fontSize: 12, margin: 0, fontWeight: 600 }}>
+                            Stream creado — guardá estos datos ahora, la Stream Key no se vuelve a mostrar.
+                          </p>
+                          <label style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+                            RTMP Server URL
+                            <input className="input" readOnly value={streamResult.ingestUrl ?? ''} onFocus={e => e.target.select()} style={{ marginTop: 4 }} />
+                          </label>
+                          <label style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
+                            Stream Key
+                            <input className="input" readOnly value={streamResult.streamKey ?? ''} onFocus={e => e.target.select()} style={{ marginTop: 4 }} />
+                          </label>
+                          {streamResult.instructions && (
+                            <p style={{ color: 'var(--color-text-secondary)', fontSize: 12, margin: 0 }}>{streamResult.instructions}</p>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
 
