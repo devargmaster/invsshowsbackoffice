@@ -401,7 +401,7 @@ export function Events() {
                   ) : (
                     <>
                       <p style={{ color: 'var(--color-text-muted)', fontSize: 12, margin: 0 }}>
-                        Alternativa sin Mux: pegá el link de un YouTube Live y marcalo en vivo — el público lo ve embebido en invs-web con el mismo control de acceso.
+                        Alternativa sin Mux: pegá el link de un YouTube Live y marcalo en vivo — el público lo ve embebido en invs-web con el mismo control de acceso. Si no lo cortás vos, se corta solo a las 6hs (por las dudas te olvides).
                       </p>
                       <input
                         className="input"
