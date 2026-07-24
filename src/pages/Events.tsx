@@ -22,6 +22,9 @@ export function Events() {
   // Mux solo devuelve la stream key en el momento de crearla — no hay forma
   // de volver a pedirla después, así que la mostramos una vez acá y listo.
   const [streamResult, setStreamResult] = useState<StreamCreationResult | null>(null);
+  const [manualLiveUrl, setManualLiveUrl] = useState('');
+  const [editingEventIsLive, setEditingEventIsLive] = useState(false);
+  const [settingManualLive, setSettingManualLive] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -77,6 +80,8 @@ export function Events() {
     });
     setPhotos(ev.photos ?? []);
     setStreamResult(null);
+    setManualLiveUrl('');
+    setEditingEventIsLive(!!ev.isLive);
     setShowModal(true);
   };
 
@@ -84,6 +89,8 @@ export function Events() {
     setEditingEvent(null);
     setPhotos([]);
     setStreamResult(null);
+    setManualLiveUrl('');
+    setEditingEventIsLive(false);
     setFormData({
       title: '',
       description: '',
@@ -141,6 +148,20 @@ export function Events() {
       alert('Error al crear el stream: ' + (err.message || 'Error desconocido'));
     } finally {
       setCreatingStream(false);
+    }
+  };
+
+  const handleSetManualLive = async (videoUrl?: string) => {
+    if (!editingEvent) return;
+    setSettingManualLive(true);
+    try {
+      const result = await apiClient.post<{ isLive: boolean }>(`/streaming/${editingEvent}/manual-live`, { videoUrl });
+      setEditingEventIsLive(result.isLive);
+      if (result.isLive) setManualLiveUrl('');
+    } catch (err: any) {
+      alert('Error: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setSettingManualLive(false);
     }
   };
 
@@ -362,6 +383,58 @@ export function Events() {
                           )}
                         </div>
                       )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {formData.mode !== 'PRESENCIAL' && (
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Radio size={15} color={editingEventIsLive ? 'var(--color-danger)' : undefined} />
+                    Live manual (YouTube) {editingEventIsLive && <span style={{ color: 'var(--color-danger)' }}>● EN VIVO</span>}
+                  </span>
+                  {!editingEvent ? (
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>
+                      Guardá el evento para poder activarlo.
+                    </p>
+                  ) : (
+                    <>
+                      <p style={{ color: 'var(--color-text-muted)', fontSize: 12, margin: 0 }}>
+                        Alternativa sin Mux: pegá el link de un YouTube Live y marcalo en vivo — el público lo ve embebido en invs-web con el mismo control de acceso.
+                      </p>
+                      <input
+                        className="input"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        value={manualLiveUrl}
+                        onChange={e => setManualLiveUrl(e.target.value)}
+                      />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => handleSetManualLive(manualLiveUrl)}
+                          disabled={settingManualLive || !manualLiveUrl}
+                          style={{
+                            padding: '10px 16px', borderRadius: 10, border: '1px solid var(--color-border)',
+                            background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                          }}
+                        >
+                          {settingManualLive ? 'Guardando...' : 'Poner en vivo'}
+                        </button>
+                        {editingEventIsLive && (
+                          <button
+                            type="button"
+                            onClick={() => handleSetManualLive(undefined)}
+                            disabled={settingManualLive}
+                            style={{
+                              padding: '10px 16px', borderRadius: 10, border: '1px solid var(--color-danger)',
+                              background: 'transparent', color: 'var(--color-danger)', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                            }}
+                          >
+                            Cortar transmisión
+                          </button>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
