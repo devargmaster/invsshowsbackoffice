@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, Edit2, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Image as ImageIcon } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
 function formatMoney(cents: number, currency = 'ARS') {
@@ -24,6 +24,7 @@ export function Addons() {
   const [editingAddon, setEditingAddon] = useState<any>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [newVariantLabel, setNewVariantLabel] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     apiClient.get<any[]>('/events').then(setEvents).catch(console.error);
@@ -72,6 +73,7 @@ export function Addons() {
           priceCents: Math.round(parseFloat(formData.price || '0') * 100),
         });
         setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...updated, variants: a.variants } : a));
+        setShowModal(false);
       } else {
         const variants = formData.hasVariants
           ? formData.variantsCsv.split(',').map(v => v.trim()).filter(Boolean)
@@ -84,8 +86,10 @@ export function Addons() {
           variants,
         });
         setAddons(prev => [...prev, created]);
+        // No cerramos el modal: pasamos a modo edición del adicional recién
+        // creado para poder cargarle una foto sin volver a abrirlo.
+        setEditingAddon(created);
       }
-      setShowModal(false);
     } catch (e: any) {
       alert('Error al guardar adicional: ' + (e.message || ''));
     }
@@ -98,6 +102,36 @@ export function Addons() {
       await load();
     } catch (e) {
       alert('Error al eliminar adicional');
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingAddon) return;
+
+    setUploadingImage(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const updated = await apiClient.fetch(`/addons/${editingAddon.id}/image`, { method: 'POST', body: fd });
+      setEditingAddon((prev: any) => ({ ...prev, imageUrl: updated.imageUrl }));
+      setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...a, imageUrl: updated.imageUrl } : a));
+    } catch (err: any) {
+      alert('Error al subir imagen: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleImageRemove = async () => {
+    if (!editingAddon) return;
+    try {
+      const updated = await apiClient.fetch(`/addons/${editingAddon.id}/image`, { method: 'DELETE' });
+      setEditingAddon((prev: any) => ({ ...prev, imageUrl: updated.imageUrl }));
+      setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...a, imageUrl: updated.imageUrl } : a));
+    } catch (err: any) {
+      alert('Error al quitar imagen: ' + (err.message || 'Error desconocido'));
     }
   };
 
@@ -150,6 +184,7 @@ export function Addons() {
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500, width: 70 }}>Foto</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Nombre</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Precio</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Variantes</th>
@@ -160,6 +195,19 @@ export function Addons() {
             <tbody>
               {addons.map(addon => (
                 <tr key={addon.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: addon.isActive ? 1 : 0.5 }}>
+                  <td style={{ padding: '16px 24px' }}>
+                    {addon.imageUrl ? (
+                      <img
+                        src={addon.imageUrl}
+                        alt={addon.name}
+                        style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--color-border)' }}
+                      />
+                    ) : (
+                      <div style={{ width: 44, height: 44, borderRadius: 8, border: '1px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                        <ImageIcon size={18} />
+                      </div>
+                    )}
+                  </td>
                   <td style={{ padding: '16px 24px', fontWeight: 600 }}>{addon.name}</td>
                   <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{formatMoney(addon.priceCents, addon.currency)}</td>
                   <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>
@@ -193,6 +241,34 @@ export function Addons() {
               <input className="input" placeholder="Nombre (ej: Remera conmemorativa)" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
               <textarea className="input" placeholder="Descripción (opcional)" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} />
               <input className="input" type="number" step="0.01" placeholder="Precio en $ (ej: 8000)" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
+
+              <div>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 8 }}>Foto (para que el comprador vea qué está comprando)</label>
+                {!editingAddon ? (
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>Guardá el adicional para poder cargar una foto.</p>
+                ) : (
+                  <>
+                    {editingAddon.imageUrl && (
+                      <div style={{ position: 'relative', width: 90, marginBottom: 10 }}>
+                        <img
+                          src={editingAddon.imageUrl}
+                          alt=""
+                          style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--color-border)' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleImageRemove}
+                          style={{ position: 'absolute', top: -8, right: -8, background: 'var(--color-danger)', border: 'none', borderRadius: '50%', width: 22, height: 22, color: '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    )}
+                    <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleImageUpload} disabled={uploadingImage} style={{ color: 'var(--color-text-secondary)', fontSize: 14 }} />
+                    {uploadingImage && <div style={{ color: 'var(--color-accent)', fontSize: 12, marginTop: 6 }}>Subiendo imagen...</div>}
+                  </>
+                )}
+              </div>
 
               {!editingAddon && (
                 <>
