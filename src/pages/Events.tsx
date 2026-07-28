@@ -56,10 +56,14 @@ export function Events() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Eliminar este evento?')) return;
+    if (!window.confirm('¿Eliminar este evento? Si ya tiene entradas vendidas, se cancela en vez de borrarse.')) return;
     try {
       await apiClient.fetch(`/events/${id}`, { method: 'DELETE' });
-      setEvents(prev => prev.filter(e => e.id !== id));
+      // No sacamos el evento de la lista a mano: si ya tenía entradas
+      // vendidas, el backend lo cancela en vez de borrarlo (rompería la FK
+      // con tickets), así que sigue existiendo — hay que releer del server
+      // para reflejar su estado real en vez de asumir que desapareció.
+      await loadEvents();
     } catch (e) {
       alert('Error al eliminar evento');
     }
