@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
@@ -28,16 +28,26 @@ export function Categories() {
     apiClient.get<any[]>('/events').then(setEvents).catch(console.error);
   }, []);
 
+  // Si el usuario cambia de evento antes de que responda el fetch anterior,
+  // ese fetch puede resolver después del nuevo y pisar las categorías con
+  // datos de otro evento. Guardamos qué evento se pidió y descartamos la
+  // respuesta si ya no coincide con el seleccionado actual.
+  const selectedEventIdRef = useRef(selectedEventId);
+  useEffect(() => { selectedEventIdRef.current = selectedEventId; }, [selectedEventId]);
+
   const load = async () => {
     if (!selectedEventId) return;
+    const requestedEventId = selectedEventId;
     setLoading(true);
     try {
-      const data = await apiClient.get<any[]>(`/events/${selectedEventId}/categories/admin`);
+      const data = await apiClient.get<any[]>(`/events/${requestedEventId}/categories/admin`);
+      if (requestedEventId !== selectedEventIdRef.current) return;
       setCategories(data);
     } catch (e) {
+      if (requestedEventId !== selectedEventIdRef.current) return;
       alert('Error al cargar categorías');
     } finally {
-      setLoading(false);
+      if (requestedEventId === selectedEventIdRef.current) setLoading(false);
     }
   };
 

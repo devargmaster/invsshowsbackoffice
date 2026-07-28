@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
@@ -30,21 +30,31 @@ export function Tickets() {
       .catch(console.error);
   }, []);
 
+  // El polling de 5s (abajo) puede tener una request en vuelo justo cuando se
+  // cambia de evento; si esa respuesta vieja llega después de la nueva
+  // búsqueda, pisaría la lista con entradas de otro evento. Se descarta si el
+  // evento pedido ya no coincide con el seleccionado actual.
+  const selectedEventIdRef = useRef(selectedEventId);
+  useEffect(() => { selectedEventIdRef.current = selectedEventId; }, [selectedEventId]);
+
   const handleSearch = async (showLoader = true) => {
     if (!selectedEventId) return;
+    const requestedEventId = selectedEventId;
     if (showLoader) setLoading(true);
     try {
-      const data = await apiClient.get<any[]>(`/tickets/event/${selectedEventId}`);
+      const data = await apiClient.get<any[]>(`/tickets/event/${requestedEventId}`);
+      if (requestedEventId !== selectedEventIdRef.current) return;
       setTickets(data);
       setSelectedTicket((prev: any) => {
         if (!prev) return null;
         return data.find(t => t.id === prev.id) || prev;
       });
     } catch (e) {
+      if (requestedEventId !== selectedEventIdRef.current) return;
       if (showLoader) alert('Error al buscar entradas');
       setTickets([]);
     } finally {
-      if (showLoader) setLoading(false);
+      if (requestedEventId === selectedEventIdRef.current && showLoader) setLoading(false);
     }
   };
 

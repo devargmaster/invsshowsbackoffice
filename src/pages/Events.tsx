@@ -25,6 +25,7 @@ export function Events() {
   const [manualLiveUrl, setManualLiveUrl] = useState('');
   const [editingEventIsLive, setEditingEventIsLive] = useState(false);
   const [settingManualLive, setSettingManualLive] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -167,6 +168,12 @@ export function Events() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Sin este guard, un doble clic (o Enter + clic) en "Guardar" dispara
+    // handleSave dos veces en paralelo: en modo creación eso manda dos
+    // POST /events y termina duplicando el evento, con las dos llamadas a
+    // setEditingEvent compitiendo por cuál de las dos copias queda editable.
+    if (saving) return;
+    setSaving(true);
     try {
       const { status, liveSellable, livePrice, ...rest } = formData;
       const dto = {
@@ -201,6 +208,8 @@ export function Events() {
       }
     } catch (e: any) {
       alert('Error al guardar evento: ' + (e.message || JSON.stringify(e)));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -441,8 +450,8 @@ export function Events() {
               )}
 
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Guardar</button>
+                <button type="button" onClick={() => setShowModal(false)} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={saving} style={{ flex: 1 }}>{saving ? 'Guardando...' : 'Guardar'}</button>
               </div>
             </form>
           </div>

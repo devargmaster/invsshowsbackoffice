@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
@@ -30,16 +30,25 @@ export function Addons() {
     apiClient.get<any[]>('/events').then(setEvents).catch(console.error);
   }, []);
 
+  // Igual que en Categories.tsx: si se cambia de evento antes de que responda
+  // el fetch anterior, esa respuesta tardía puede pisar los adicionales con
+  // datos de otro evento. Se descarta si ya no coincide con el seleccionado.
+  const selectedEventIdRef = useRef(selectedEventId);
+  useEffect(() => { selectedEventIdRef.current = selectedEventId; }, [selectedEventId]);
+
   const load = async () => {
     if (!selectedEventId) return;
+    const requestedEventId = selectedEventId;
     setLoading(true);
     try {
-      const data = await apiClient.get<any[]>(`/events/${selectedEventId}/addons/admin`);
+      const data = await apiClient.get<any[]>(`/events/${requestedEventId}/addons/admin`);
+      if (requestedEventId !== selectedEventIdRef.current) return;
       setAddons(data);
     } catch (e) {
+      if (requestedEventId !== selectedEventIdRef.current) return;
       alert('Error al cargar adicionales');
     } finally {
-      setLoading(false);
+      if (requestedEventId === selectedEventIdRef.current) setLoading(false);
     }
   };
 
