@@ -90,7 +90,15 @@ export function Appearance() {
     if (!formData) return;
     setSaving(true);
     try {
-      const updated = await apiClient.patch<ThemePalette>('/admin/theme', formData);
+      // formData sale de GET /theme, que además de la paleta trae "modules"
+      // anidado — el backend rechaza cualquier propiedad no declarada en el
+      // DTO (forbidNonWhitelisted), así que mandamos solo las 10 claves de
+      // color y nada más.
+      const payload = PALETTE_FIELDS.reduce((acc, { key }) => {
+        acc[key] = formData[key];
+        return acc;
+      }, {} as ThemePalette);
+      const updated = await apiClient.patch<ThemePalette>('/admin/theme', payload);
       savedRef.current = updated;
       setFormData(updated);
       localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(updated));
