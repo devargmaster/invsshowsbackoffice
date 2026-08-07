@@ -23,6 +23,7 @@ export function Events() {
   // de volver a pedirla después, así que la mostramos una vez acá y listo.
   const [streamResult, setStreamResult] = useState<StreamCreationResult | null>(null);
   const [manualLiveUrl, setManualLiveUrl] = useState('');
+  const [manualLiveProvider, setManualLiveProvider] = useState<'YOUTUBE' | 'TWITCH'>('YOUTUBE');
   const [editingEventIsLive, setEditingEventIsLive] = useState(false);
   const [settingManualLive, setSettingManualLive] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -86,6 +87,7 @@ export function Events() {
     setPhotos(ev.photos ?? []);
     setStreamResult(null);
     setManualLiveUrl('');
+    setManualLiveProvider(ev.manualLiveProvider ?? 'YOUTUBE');
     setEditingEventIsLive(!!ev.isLive);
     setShowModal(true);
   };
@@ -95,6 +97,7 @@ export function Events() {
     setPhotos([]);
     setStreamResult(null);
     setManualLiveUrl('');
+    setManualLiveProvider('YOUTUBE');
     setEditingEventIsLive(false);
     setFormData({
       title: '',
@@ -160,7 +163,10 @@ export function Events() {
     if (!editingEvent) return;
     setSettingManualLive(true);
     try {
-      const result = await apiClient.post<{ isLive: boolean }>(`/streaming/${editingEvent}/manual-live`, { videoUrl });
+      const result = await apiClient.post<{ isLive: boolean }>(`/streaming/${editingEvent}/manual-live`, {
+        provider: videoUrl ? manualLiveProvider : undefined,
+        videoUrl,
+      });
       setEditingEventIsLive(result.isLive);
       if (result.isLive) setManualLiveUrl('');
     } catch (err: any) {
@@ -405,7 +411,7 @@ export function Events() {
                 <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <span style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Radio size={15} color={editingEventIsLive ? 'var(--color-danger)' : undefined} />
-                    Live manual (YouTube) {editingEventIsLive && <span style={{ color: 'var(--color-danger)' }}>● EN VIVO</span>}
+                    Live manual (YouTube o Twitch) {editingEventIsLive && <span style={{ color: 'var(--color-danger)' }}>● EN VIVO</span>}
                   </span>
                   {!editingEvent ? (
                     <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>
@@ -414,11 +420,30 @@ export function Events() {
                   ) : (
                     <>
                       <p style={{ color: 'var(--color-text-muted)', fontSize: 12, margin: 0 }}>
-                        Alternativa sin Mux: pegá el link de un YouTube Live y marcalo en vivo — el público lo ve embebido en invs-web con el mismo control de acceso. Si no lo cortás vos, se corta solo a las 6hs (por las dudas te olvides).
+                        Alternativa sin Mux: transmití desde OBS a tu cuenta de YouTube o Twitch, pegá el link acá y marcalo en vivo — el público lo ve embebido en invs-web con el mismo control de acceso. Si no lo cortás vos, se corta solo a las 6hs (por las dudas te olvides).
                       </p>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {(['YOUTUBE', 'TWITCH'] as const).map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => setManualLiveProvider(p)}
+                            disabled={editingEventIsLive}
+                            style={{
+                              padding: '6px 14px', borderRadius: 100, fontSize: 12.5, fontWeight: 600, cursor: editingEventIsLive ? 'default' : 'pointer',
+                              border: `1px solid ${manualLiveProvider === p ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                              background: manualLiveProvider === p ? 'var(--color-accent)' : 'transparent',
+                              color: manualLiveProvider === p ? 'var(--color-bg)' : 'var(--color-text-secondary)',
+                              opacity: editingEventIsLive && manualLiveProvider !== p ? 0.4 : 1,
+                            }}
+                          >
+                            {p === 'YOUTUBE' ? '▶ YouTube' : '🟣 Twitch'}
+                          </button>
+                        ))}
+                      </div>
                       <input
                         className="input"
-                        placeholder="https://www.youtube.com/watch?v=..."
+                        placeholder={manualLiveProvider === 'TWITCH' ? 'https://www.twitch.tv/tu_canal (o el nombre del canal)' : 'https://www.youtube.com/watch?v=...'}
                         value={manualLiveUrl}
                         onChange={e => setManualLiveUrl(e.target.value)}
                       />
