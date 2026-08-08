@@ -10,6 +10,7 @@ import { Categories } from './pages/Categories';
 import { Addons } from './pages/Addons';
 import { Content } from './pages/Content';
 import { ContentPurchases } from './pages/ContentPurchases';
+import { Landings } from './pages/Landings';
 import { AdminLayout } from './components/AdminLayout';
 import { PaymentSettings } from './pages/PaymentSettings';
 import { Appearance } from './pages/Appearance';
@@ -29,6 +30,7 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/addons" element={<Addons />} />
           <Route path="/content" element={<Content />} />
+          <Route path="/landings" element={<Landings />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/content-purchases" element={<ContentPurchases />} />
           <Route path="/tickets" element={<Tickets />} />
