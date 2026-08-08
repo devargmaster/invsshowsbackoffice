@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, Edit2, ChevronUp, ChevronDown, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Edit2, ChevronUp, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
 import { apiClient } from '../apiClient';
+import { BLOCK_TYPES, BLOCK_FIELD_CONFIG, type LandingBlockType } from '../landings/blockFieldConfig';
+import { BlockFieldsForm } from '../landings/BlockFieldsForm';
+import { LandingPreview, type PreviewTheme } from '../landings/LandingPreview';
 
-const BLOCK_TYPES = ['hero', 'text', 'gallery', 'cta', 'countdown', 'video'] as const;
-type BlockType = (typeof BLOCK_TYPES)[number];
-
-// content/style se editan como JSON de texto en esta primera versión —
-// cada tipo de bloque tiene una forma distinta y todavía no vale la pena
-// un formulario con campos propios por tipo (eso es el siguiente paso,
-// con vista previa en vivo). Ver la documentación de producto sobre el
-// catálogo de bloques para las claves esperadas de cada `type`.
-interface BlockFormState {
+interface BlockState {
   id: string;
-  type: BlockType;
-  contentText: string;
-  styleText: string;
+  type: LandingBlockType;
+  content: Record<string, any>;
+  style: Record<string, any>;
 }
 
 const emptyLandingForm = {
@@ -29,8 +24,8 @@ function newBlockId() {
   return `blk_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
 
-function emptyBlock(type: BlockType = 'text'): BlockFormState {
-  return { id: newBlockId(), type, contentText: '{}', styleText: '{}' };
+function emptyBlock(type: LandingBlockType = 'text'): BlockState {
+  return { id: newBlockId(), type, content: {}, style: {} };
 }
 
 export function Landings() {
@@ -39,8 +34,10 @@ export function Landings() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyLandingForm);
-  const [blocks, setBlocks] = useState<BlockFormState[]>([]);
+  const [blocks, setBlocks] = useState<BlockState[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [previewTheme, setPreviewTheme] = useState<PreviewTheme | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -56,10 +53,18 @@ export function Landings() {
 
   useEffect(() => { load(); }, []);
 
+  // La paleta real de invs-web — para que la vista previa no use el tema
+  // violeta propio del backoffice. Es un endpoint público, no hace falta
+  // ningún permiso especial.
+  useEffect(() => {
+    apiClient.get<PreviewTheme>('/theme').then(setPreviewTheme).catch(() => {});
+  }, []);
+
   const openCreateModal = () => {
     setEditingId(null);
     setFormData(emptyLandingForm);
     setBlocks([]);
+    setExpandedId(null);
     setShowModal(true);
   };
 
@@ -72,14 +77,14 @@ export function Landings() {
       seoDescription: landing.seoDescription || '',
       customCss: landing.customCss || '',
     });
-    setBlocks(
-      (landing.blocks ?? []).map((b: any) => ({
-        id: b.id,
-        type: b.type,
-        contentText: JSON.stringify(b.content ?? {}, null, 2),
-        styleText: JSON.stringify(b.style ?? {}, null, 2),
-      })),
-    );
+    const loadedBlocks: BlockState[] = (landing.blocks ?? []).map((b: any) => ({
+      id: b.id,
+      type: b.type,
+      content: b.content ?? {},
+      style: b.style ?? {},
+    }));
+    setBlocks(loadedBlocks);
+    setExpandedId(loadedBlocks[0]?.id ?? null);
     setShowModal(true);
   };
 
@@ -93,7 +98,11 @@ export function Landings() {
     }
   };
 
-  const addBlock = () => setBlocks(prev => [...prev, emptyBlock()]);
+  const addBlock = () => {
+    const block = emptyBlock();
+    setBlocks(prev => [...prev, block]);
+    setExpandedId(block.id);
+  };
   const removeBlock = (id: string) => setBlocks(prev => prev.filter(b => b.id !== id));
   const moveBlock = (index: number, dir: -1 | 1) => {
     setBlocks(prev => {
@@ -104,26 +113,18 @@ export function Landings() {
       return next;
     });
   };
-  const updateBlock = (id: string, patch: Partial<BlockFormState>) => {
-    setBlocks(prev => prev.map(b => (b.id === id ? { ...b, ...patch } : b)));
+  const setBlockType = (id: string, type: LandingBlockType) => {
+    setBlocks(prev => prev.map(b => (b.id === id ? { id: b.id, type, content: {}, style: {} } : b)));
+  };
+  const setBlockContent = (id: string, key: string, value: any) => {
+    setBlocks(prev => prev.map(b => (b.id === id ? { ...b, content: { ...b.content, [key]: value } } : b)));
+  };
+  const setBlockStyle = (id: string, key: string, value: any) => {
+    setBlocks(prev => prev.map(b => (b.id === id ? { ...b, style: { ...b.style, [key]: value } } : b)));
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    let parsedBlocks: any[];
-    try {
-      parsedBlocks = blocks.map((b, i) => {
-        try {
-          return { id: b.id, type: b.type, content: JSON.parse(b.contentText || '{}'), style: JSON.parse(b.styleText || '{}') };
-        } catch {
-          throw new Error(`El bloque #${i + 1} (${b.type}) tiene JSON inválido en Contenido o Estilo.`);
-        }
-      });
-    } catch (err: any) {
-      alert(err.message);
-      return;
-    }
 
     const dto = {
       slug: formData.slug,
@@ -131,7 +132,7 @@ export function Landings() {
       seoTitle: formData.seoTitle || undefined,
       seoDescription: formData.seoDescription || undefined,
       customCss: formData.customCss || undefined,
-      blocks: parsedBlocks,
+      blocks: blocks.map(({ id, type, content, style }) => ({ id, type, content, style })),
     };
 
     setSaving(true);
@@ -218,35 +219,40 @@ export function Landings() {
 
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
-          <div className="glass" style={{ width: 640, maxHeight: '88vh', overflowY: 'auto', padding: 32, borderRadius: 24 }}>
-            <h2 style={{ marginTop: 0, marginBottom: 24 }}>{editingId ? 'Editar landing' : 'Nueva landing'}</h2>
-            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <input
-                className="input"
-                placeholder="Slug (ej: invs-live-session-7)"
-                value={formData.slug}
-                onChange={e => setFormData({ ...formData, slug: e.target.value })}
-                required
-              />
-              <select className="input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as 'DRAFT' | 'PUBLISHED' })}>
-                <option value="DRAFT">Borrador</option>
-                <option value="PUBLISHED">Publicada</option>
-              </select>
-              <input
-                className="input"
-                placeholder="Título SEO (opcional)"
-                value={formData.seoTitle}
-                onChange={e => setFormData({ ...formData, seoTitle: e.target.value })}
-              />
-              <textarea
-                className="input"
-                placeholder="Descripción SEO (opcional)"
-                value={formData.seoDescription}
-                onChange={e => setFormData({ ...formData, seoDescription: e.target.value })}
-                rows={2}
-              />
+          <div className="glass" style={{ width: 1080, maxWidth: '96vw', maxHeight: '92vh', display: 'flex', borderRadius: 24, overflow: 'hidden' }}>
 
-              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16 }}>
+            {/* ── Columna editor ─────────────────────────────────────── */}
+            <form onSubmit={handleSave} style={{ flex: '1.3 1 0', minWidth: 0, display: 'flex', flexDirection: 'column', padding: 28, overflowY: 'auto' }}>
+              <h2 style={{ marginTop: 0, marginBottom: 20 }}>{editingId ? 'Editar landing' : 'Nueva landing'}</h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                <input
+                  className="input"
+                  placeholder="Slug (ej: invs-live-session-7)"
+                  value={formData.slug}
+                  onChange={e => setFormData({ ...formData, slug: e.target.value })}
+                  required
+                />
+                <select className="input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as 'DRAFT' | 'PUBLISHED' })}>
+                  <option value="DRAFT">Borrador</option>
+                  <option value="PUBLISHED">Publicada</option>
+                </select>
+                <input
+                  className="input"
+                  placeholder="Título SEO (opcional)"
+                  value={formData.seoTitle}
+                  onChange={e => setFormData({ ...formData, seoTitle: e.target.value })}
+                />
+                <textarea
+                  className="input"
+                  placeholder="Descripción SEO (opcional)"
+                  value={formData.seoDescription}
+                  onChange={e => setFormData({ ...formData, seoDescription: e.target.value })}
+                  rows={2}
+                />
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <span style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>Bloques ({blocks.length})</span>
                   <button type="button" onClick={addBlock} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--color-border)', background: 'transparent', color: 'var(--color-text)', cursor: 'pointer', fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -258,56 +264,73 @@ export function Landings() {
                   <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Esta landing todavía no tiene bloques.</p>
                 )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {blocks.map((block, i) => (
-                    <div key={block.id} style={{ border: '1px solid var(--color-border)', borderRadius: 12, padding: 12 }}>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10 }}>
-                        <select
-                          className="input"
-                          value={block.type}
-                          onChange={e => updateBlock(block.id, { type: e.target.value as BlockType })}
-                          style={{ flex: 1 }}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {blocks.map((block, i) => {
+                    const config = BLOCK_FIELD_CONFIG[block.type];
+                    const isOpen = expandedId === block.id;
+                    return (
+                      <div key={block.id} style={{ border: '1px solid var(--color-border)', borderRadius: 12, overflow: 'hidden' }}>
+                        <div
+                          onClick={() => setExpandedId(isOpen ? null : block.id)}
+                          style={{ display: 'flex', gap: 8, alignItems: 'center', padding: 10, cursor: 'pointer' }}
                         >
-                          {BLOCK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                        <button type="button" onClick={() => moveBlock(i, -1)} disabled={i === 0} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 6, opacity: i === 0 ? 0.3 : 1 }}>
-                          <ChevronUp size={16} />
-                        </button>
-                        <button type="button" onClick={() => moveBlock(i, 1)} disabled={i === blocks.length - 1} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 6, opacity: i === blocks.length - 1 ? 0.3 : 1 }}>
-                          <ChevronDown size={16} />
-                        </button>
-                        <button type="button" onClick={() => removeBlock(block.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 6 }}>
-                          <Trash2 size={16} />
-                        </button>
+                          <ChevronRight size={14} style={{ transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .15s', color: 'var(--color-text-muted)', flexShrink: 0 }} />
+                          <span style={{ fontWeight: 600, fontSize: 13, textTransform: 'capitalize' }}>{block.type}</span>
+                          <span style={{ color: 'var(--color-text-muted)', fontSize: 12, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {config.summarize(block.content)}
+                          </span>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); moveBlock(i, -1); }} disabled={i === 0} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 4, opacity: i === 0 ? 0.3 : 1 }}>
+                            <ChevronUp size={15} />
+                          </button>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); moveBlock(i, 1); }} disabled={i === blocks.length - 1} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 4, opacity: i === blocks.length - 1 ? 0.3 : 1 }}>
+                            <ChevronDown size={15} />
+                          </button>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); removeBlock(block.id); }} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 4 }}>
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+
+                        {isOpen && (
+                          <div style={{ padding: '4px 14px 16px', borderTop: '1px solid var(--color-border)' }}>
+                            <div style={{ marginTop: 12, marginBottom: 14 }}>
+                              <label style={{ color: 'var(--color-text-muted)', fontSize: 12, display: 'block', marginBottom: 4 }}>Tipo de bloque</label>
+                              <select className="input" value={block.type} onChange={(e) => setBlockType(block.id, e.target.value as LandingBlockType)}>
+                                {BLOCK_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                              </select>
+                            </div>
+
+                            <p style={{ color: 'var(--color-text-muted)', fontSize: 10.5, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', margin: '0 0 8px' }}>Contenido</p>
+                            <BlockFieldsForm
+                              fields={config.contentFields}
+                              values={block.content}
+                              onChange={(key, value) => setBlockContent(block.id, key, value)}
+                            />
+
+                            {config.styleFields.length > 0 && (
+                              <>
+                                <p style={{ color: 'var(--color-text-muted)', fontSize: 10.5, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', margin: '12px 0 8px' }}>Estilo</p>
+                                <BlockFieldsForm
+                                  fields={config.styleFields}
+                                  values={block.style}
+                                  onChange={(key, value) => setBlockStyle(block.id, key, value)}
+                                />
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <label style={{ color: 'var(--color-text-muted)', fontSize: 11, display: 'block', marginBottom: 4 }}>Contenido (JSON)</label>
-                      <textarea
-                        className="input"
-                        value={block.contentText}
-                        onChange={e => updateBlock(block.id, { contentText: e.target.value })}
-                        rows={3}
-                        style={{ fontFamily: 'monospace', fontSize: 12.5, marginBottom: 8 }}
-                      />
-                      <label style={{ color: 'var(--color-text-muted)', fontSize: 11, display: 'block', marginBottom: 4 }}>Estilo (JSON, opcional)</label>
-                      <textarea
-                        className="input"
-                        value={block.styleText}
-                        onChange={e => updateBlock(block.id, { styleText: e.target.value })}
-                        rows={2}
-                        style={{ fontFamily: 'monospace', fontSize: 12.5 }}
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16 }}>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, marginBottom: 8 }}>
                 <label style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>
                   CSS custom (opcional — escape hatch acotado a esta landing)
                 </label>
                 <textarea
                   className="input"
-                  placeholder=".lb-hero__title { font-size: 3rem; }"
+                  placeholder=".lp-hero__title { font-size: 3rem; }"
                   value={formData.customCss}
                   onChange={e => setFormData({ ...formData, customCss: e.target.value })}
                   rows={3}
@@ -315,11 +338,20 @@ export function Landings() {
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                 <button type="button" onClick={() => setShowModal(false)} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1px solid var(--color-border)', background: 'transparent', color: '#FFF', cursor: 'pointer' }}>Cancelar</button>
                 <button type="submit" className="btn-primary" disabled={saving} style={{ flex: 1 }}>{saving ? 'Guardando...' : 'Guardar'}</button>
               </div>
             </form>
+
+            {/* ── Columna preview ────────────────────────────────────── */}
+            <div style={{ flex: '1 1 0', minWidth: 0, borderLeft: '1px solid var(--color-border)', padding: 20, overflowY: 'auto', background: 'rgba(0,0,0,0.2)' }}>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', margin: '0 0 12px' }}>
+                Vista previa en vivo
+              </p>
+              <LandingPreview blocks={blocks} theme={previewTheme} />
+            </div>
+
           </div>
         </div>
       )}

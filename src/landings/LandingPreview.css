@@ -1,0 +1,64 @@
+/* Scoped a .landing-preview — mismos nombres de variable que invs-web,
+   pero con los valores fijados inline por LandingPreview.tsx (fetch a
+   /theme), así nunca hereda el tema propio (violeta) del backoffice. */
+
+.landing-preview {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--p-font-family);
+  border-radius: 12px;
+  overflow: hidden;
+  padding-bottom: 8px;
+}
+
+.landing-preview__empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.landing-preview__blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 0 20px;
+}
+
+.lp-hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 200px;
+  padding: 24px 20px;
+  background-color: var(--color-surface);
+  background-size: cover;
+  background-position: center;
+}
+.lp-hero__overlay { position: absolute; inset: 0; }
+.lp-hero__inner { position: relative; z-index: 1; max-width: 90%; }
+.lp-hero__eyebrow { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); margin: 0 0 8px; font-weight: 700; }
+.lp-hero__title { font-size: 20px; line-height: 1.2; margin: 0 0 8px; font-weight: 800; }
+.lp-hero__subtitle { font-size: 12.5px; color: var(--color-text-secondary); margin: 0 0 14px; line-height: 1.5; }
+.lp-hero__cta { display: inline-block; padding: 9px 16px; border-radius: 8px; background: var(--p-gradient-primary); color: var(--color-bg); font-weight: 700; font-size: 12px; }
+
+.lp-text { padding: 0 20px; }
+.lp-text__heading { font-size: 15px; margin: 0 0 8px; font-weight: 700; }
+.lp-text__body { color: var(--color-text-secondary); line-height: 1.6; margin: 0; font-size: 13px; }
+
+.lp-gallery { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 3px; margin: 0 20px; border-radius: 8px; overflow: hidden; }
+.lp-gallery--grid { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
+.lp-gallery__img { width: 100%; height: 80px; object-fit: cover; display: block; background: var(--color-surface); }
+.lp-gallery__empty { padding: 20px; text-align: center; color: var(--color-text-muted); font-size: 12px; border: 1px dashed var(--color-border); border-radius: 8px; margin: 0 20px; }
+
+.lp-cta { padding: 0 20px; text-align: center; }
+.lp-cta__btn { display: inline-block; width: 100%; max-width: 260px; padding: 11px 0; border-radius: 8px; font-weight: 700; font-size: 12.5px; }
+.lp-cta__btn--primary { background: var(--p-gradient-primary); color: var(--color-bg); }
+.lp-cta__btn--secondary { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
+
+.lp-countdown { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 4px 20px; }
+.lp-countdown__label { font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); margin-right: 4px; }
+.lp-countdown__num { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: center; }
+.lp-countdown__unitlabel { font-size: 8px; color: var(--color-text-muted); text-align: center; margin-top: 2px; }
+
+.lp-video { margin: 0 20px; border-radius: 8px; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-border); min-height: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; color: var(--color-text-muted); font-size: 12px; }
