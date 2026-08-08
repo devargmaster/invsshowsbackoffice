@@ -22,6 +22,7 @@ const emptyLandingForm = {
   status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
   seoTitle: '',
   seoDescription: '',
+  customCss: '',
 };
 
 function newBlockId() {
@@ -69,6 +70,7 @@ export function Landings() {
       status: landing.status,
       seoTitle: landing.seoTitle || '',
       seoDescription: landing.seoDescription || '',
+      customCss: landing.customCss || '',
     });
     setBlocks(
       (landing.blocks ?? []).map((b: any) => ({
@@ -128,6 +130,7 @@ export function Landings() {
       status: formData.status,
       seoTitle: formData.seoTitle || undefined,
       seoDescription: formData.seoDescription || undefined,
+      customCss: formData.customCss || undefined,
       blocks: parsedBlocks,
     };
 
@@ -296,6 +299,20 @@ export function Landings() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16 }}>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>
+                  CSS custom (opcional — escape hatch acotado a esta landing)
+                </label>
+                <textarea
+                  className="input"
+                  placeholder=".lb-hero__title { font-size: 3rem; }"
+                  value={formData.customCss}
+                  onChange={e => setFormData({ ...formData, customCss: e.target.value })}
+                  rows={3}
+                  style={{ fontFamily: 'monospace', fontSize: 12.5 }}
+                />
               </div>
 
               <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
