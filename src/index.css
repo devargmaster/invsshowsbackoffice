@@ -26,6 +26,8 @@
   --color-text-muted: #8F8FA3;
   --color-success: #22C55E;
   --color-danger: #EF4444;
+
+  --gradient-primary: linear-gradient(135deg, var(--color-accent-hover) 0%, var(--color-accent) 100%);
 }
 
 body {
@@ -67,12 +69,13 @@ body {
   border-color: var(--color-accent);
 }
 
-/* Fondo sólido a propósito, NO themizado: es más oscuro que --color-accent
-   para garantizar contraste con el texto blanco. Si un admin elige un
-   acento claro, themizar esto volvería el botón ilegible. */
+/* Mismo patrón que invs-web (login-page__submit): gradiente de --color-accent
+   con texto en --color-bg (oscuro), no blanco fijo — así funciona con
+   cualquier acento claro sin perder contraste, y queda themizado igual
+   que el frontend. */
 .btn-primary {
-  background-color: #7C3AED;
-  color: #FFF;
+  background: var(--gradient-primary);
+  color: var(--color-bg);
   font-weight: 700;
   border: none;
   border-radius: 12px;
@@ -87,8 +90,8 @@ body {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #6D28D9;
   transform: translateY(-1px);
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 .btn-primary:disabled {
