@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
@@ -12,16 +12,17 @@ const emptyForm = {
   price: '',
   hasVariants: false,
   variantsCsv: '', // solo se usa al crear (ej: "S,M,L,XL")
+  showInStore: false,
+  eventIds: [] as string[],
 };
 
-export function Addons() {
+export function Products() {
   const [events, setEvents] = useState<any[]>([]);
-  const [selectedEventId, setSelectedEventId] = useState('');
-  const [addons, setAddons] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
-  const [editingAddon, setEditingAddon] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [newVariantLabel, setNewVariantLabel] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -30,101 +31,106 @@ export function Addons() {
     apiClient.get<any[]>('/events').then(setEvents).catch(console.error);
   }, []);
 
-  // Igual que en Categories.tsx: si se cambia de evento antes de que responda
-  // el fetch anterior, esa respuesta tardía puede pisar los adicionales con
-  // datos de otro evento. Se descarta si ya no coincide con el seleccionado.
-  const selectedEventIdRef = useRef(selectedEventId);
-  useEffect(() => { selectedEventIdRef.current = selectedEventId; }, [selectedEventId]);
-
   const load = async () => {
-    if (!selectedEventId) return;
-    const requestedEventId = selectedEventId;
     setLoading(true);
     try {
-      const data = await apiClient.get<any[]>(`/events/${requestedEventId}/addons/admin`);
-      if (requestedEventId !== selectedEventIdRef.current) return;
-      setAddons(data);
+      const data = await apiClient.get<any[]>('/addons/admin');
+      setProducts(data);
     } catch (e) {
-      if (requestedEventId !== selectedEventIdRef.current) return;
-      alert('Error al cargar adicionales');
+      alert('Error al cargar productos');
     } finally {
-      if (requestedEventId === selectedEventIdRef.current) setLoading(false);
+      setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, [selectedEventId]);
+  useEffect(() => { load(); }, []);
 
   const openCreateModal = () => {
-    setEditingAddon(null);
+    setEditingProduct(null);
     setFormData(emptyForm);
     setShowModal(true);
   };
 
-  const openEditModal = (addon: any) => {
-    setEditingAddon(addon);
+  const openEditModal = (product: any) => {
+    setEditingProduct(product);
     setFormData({
-      name: addon.name,
-      description: addon.description || '',
-      price: (addon.priceCents / 100).toString(),
-      hasVariants: addon.hasVariants,
+      name: product.name,
+      description: product.description || '',
+      price: (product.priceCents / 100).toString(),
+      hasVariants: product.hasVariants,
       variantsCsv: '',
+      showInStore: product.showInStore,
+      eventIds: (product.eventLinks ?? []).map((l: any) => l.eventId),
     });
     setShowModal(true);
+  };
+
+  const toggleEventId = (eventId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      eventIds: prev.eventIds.includes(eventId)
+        ? prev.eventIds.filter(id => id !== eventId)
+        : [...prev.eventIds, eventId],
+    }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editingAddon) {
-        const updated = await apiClient.patch<any>(`/addons/${editingAddon.id}`, {
+      if (editingProduct) {
+        const updated = await apiClient.patch<any>(`/addons/${editingProduct.id}`, {
           name: formData.name,
           description: formData.description || undefined,
           priceCents: Math.round(parseFloat(formData.price || '0') * 100),
+          showInStore: formData.showInStore,
+          eventIds: formData.eventIds,
         });
-        setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...updated, variants: a.variants } : a));
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...updated, variants: p.variants } : p));
         setShowModal(false);
       } else {
         const variants = formData.hasVariants
           ? formData.variantsCsv.split(',').map(v => v.trim()).filter(Boolean)
           : undefined;
-        const created = await apiClient.post<any>(`/events/${selectedEventId}/addons`, {
+        const created = await apiClient.post<any>('/addons', {
           name: formData.name,
           description: formData.description || undefined,
           priceCents: Math.round(parseFloat(formData.price || '0') * 100),
           hasVariants: formData.hasVariants,
           variants,
+          showInStore: formData.showInStore,
+          eventIds: formData.eventIds,
         });
-        setAddons(prev => [...prev, created]);
-        // No cerramos el modal: pasamos a modo edición del adicional recién
+        setProducts(prev => [...prev, created]);
+        // No cerramos el modal: pasamos a modo edición del producto recién
         // creado para poder cargarle una foto sin volver a abrirlo.
-        setEditingAddon(created);
+        setEditingProduct(created);
       }
     } catch (e: any) {
-      alert('Error al guardar adicional: ' + (e.message || ''));
+      alert('Error al guardar producto: ' + (e.message || ''));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Eliminar este adicional? Si ya tiene ventas, se desactiva en vez de borrarse.')) return;
+    if (!window.confirm('¿Eliminar este producto? Si ya tiene ventas, se desactiva en vez de borrarse.')) return;
     try {
       await apiClient.fetch(`/addons/${id}`, { method: 'DELETE' });
       await load();
     } catch (e) {
-      alert('Error al eliminar adicional');
+      alert('Error al eliminar producto');
     }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !editingAddon) return;
+    if (!file || !editingProduct) return;
 
     setUploadingImage(true);
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const updated = await apiClient.fetch(`/addons/${editingAddon.id}/image`, { method: 'POST', body: fd });
-      setEditingAddon((prev: any) => ({ ...prev, imageUrl: updated.imageUrl }));
-      setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...a, imageUrl: updated.imageUrl } : a));
+      const updated = await apiClient.fetch(`/addons/${editingProduct.id}/image`, { method: 'POST', body: fd });
+      setEditingProduct((prev: any) => ({ ...prev, imageUrl: updated.imageUrl }));
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, imageUrl: updated.imageUrl } : p));
     } catch (err: any) {
       alert('Error al subir imagen: ' + (err.message || 'Error desconocido'));
     } finally {
@@ -134,22 +140,22 @@ export function Addons() {
   };
 
   const handleImageRemove = async () => {
-    if (!editingAddon) return;
+    if (!editingProduct) return;
     try {
-      const updated = await apiClient.fetch(`/addons/${editingAddon.id}/image`, { method: 'DELETE' });
-      setEditingAddon((prev: any) => ({ ...prev, imageUrl: updated.imageUrl }));
-      setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...a, imageUrl: updated.imageUrl } : a));
+      const updated = await apiClient.fetch(`/addons/${editingProduct.id}/image`, { method: 'DELETE' });
+      setEditingProduct((prev: any) => ({ ...prev, imageUrl: updated.imageUrl }));
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, imageUrl: updated.imageUrl } : p));
     } catch (err: any) {
       alert('Error al quitar imagen: ' + (err.message || 'Error desconocido'));
     }
   };
 
   const handleAddVariant = async () => {
-    if (!editingAddon || !newVariantLabel.trim()) return;
+    if (!editingProduct || !newVariantLabel.trim()) return;
     try {
-      const variant = await apiClient.post<any>(`/addons/${editingAddon.id}/variants`, { label: newVariantLabel.trim() });
-      setEditingAddon((prev: any) => ({ ...prev, variants: [...(prev.variants ?? []), variant] }));
-      setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...a, variants: [...(a.variants ?? []), variant] } : a));
+      const variant = await apiClient.post<any>(`/addons/${editingProduct.id}/variants`, { label: newVariantLabel.trim() });
+      setEditingProduct((prev: any) => ({ ...prev, variants: [...(prev.variants ?? []), variant] }));
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, variants: [...(p.variants ?? []), variant] } : p));
       setNewVariantLabel('');
     } catch (e) {
       alert('Error al agregar variante');
@@ -157,11 +163,11 @@ export function Addons() {
   };
 
   const handleRemoveVariant = async (variantId: string) => {
-    if (!editingAddon) return;
+    if (!editingProduct) return;
     try {
       await apiClient.fetch(`/addons/variants/${variantId}`, { method: 'DELETE' });
-      setEditingAddon((prev: any) => ({ ...prev, variants: prev.variants.filter((v: any) => v.id !== variantId) }));
-      setAddons(prev => prev.map(a => a.id === editingAddon.id ? { ...a, variants: a.variants.filter((v: any) => v.id !== variantId) } : a));
+      setEditingProduct((prev: any) => ({ ...prev, variants: prev.variants.filter((v: any) => v.id !== variantId) }));
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, variants: p.variants.filter((v: any) => v.id !== variantId) } : p));
     } catch (e: any) {
       alert('No se pudo eliminar la variante (probablemente ya tiene ventas).');
     }
@@ -169,26 +175,24 @@ export function Addons() {
 
   return (
     <div>
-      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Adicionales</h1>
-      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>Remeras, cuadros dorados, conmemorativos — extras para decorar la experiencia.</p>
+      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Productos</h1>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>
+        Catálogo de productos (remeras, cuadros, merchandising): vendibles en la Tienda y/o como complemento de una o varias Experiencias.
+      </p>
 
-      <div className="glass" style={{ padding: 16, borderRadius: 16, marginBottom: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
-        <select className="input" value={selectedEventId} onChange={e => setSelectedEventId(e.target.value)} style={{ flex: 1 }}>
-          <option value="">Seleccioná un evento...</option>
-          {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
-        </select>
-        <button className="btn-primary" onClick={openCreateModal} disabled={!selectedEventId}>
-          <Plus size={20} /> Nuevo adicional
+      <div className="glass" style={{ padding: 16, borderRadius: 16, marginBottom: 24, display: 'flex', justifyContent: 'flex-end' }}>
+        <button className="btn-primary" onClick={openCreateModal}>
+          <Plus size={20} /> Nuevo producto
         </button>
       </div>
 
-      {loading && <div style={{ color: 'var(--color-text-muted)' }}>Cargando adicionales...</div>}
+      {loading && <div style={{ color: 'var(--color-text-muted)' }}>Cargando productos...</div>}
 
-      {!loading && selectedEventId && addons.length === 0 && (
-        <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>Este evento no tiene adicionales todavía.</div>
+      {!loading && products.length === 0 && (
+        <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>Todavía no hay productos cargados.</div>
       )}
 
-      {!loading && addons.length > 0 && (
+      {!loading && products.length > 0 && (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
@@ -196,19 +200,20 @@ export function Addons() {
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500, width: 70 }}>Foto</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Nombre</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Precio</th>
-                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Variantes</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Tienda</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Experiencias</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {addons.map(addon => (
-                <tr key={addon.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: addon.isActive ? 1 : 0.5 }}>
+              {products.map(product => (
+                <tr key={product.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: product.isActive ? 1 : 0.5 }}>
                   <td style={{ padding: '16px 24px' }}>
-                    {addon.imageUrl ? (
+                    {product.imageUrl ? (
                       <img
-                        src={addon.imageUrl}
-                        alt={addon.name}
+                        src={product.imageUrl}
+                        alt={product.name}
                         style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--color-border)' }}
                       />
                     ) : (
@@ -217,21 +222,30 @@ export function Addons() {
                       </div>
                     )}
                   </td>
-                  <td style={{ padding: '16px 24px', fontWeight: 600 }}>{addon.name}</td>
-                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{formatMoney(addon.priceCents, addon.currency)}</td>
+                  <td style={{ padding: '16px 24px', fontWeight: 600 }}>{product.name}</td>
+                  <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{formatMoney(product.priceCents, product.currency)}</td>
+                  <td style={{ padding: '16px 24px' }}>
+                    {product.showInStore ? (
+                      <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.2)', color: '#86EFAC', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>SÍ</span>
+                    ) : (
+                      <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                    )}
+                  </td>
                   <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>
-                    {addon.hasVariants ? (addon.variants?.map((v: any) => v.label).join(', ') || '—') : 'Sin variantes'}
+                    {(product.eventLinks ?? []).length > 0
+                      ? product.eventLinks.map((l: any) => l.event?.title).filter(Boolean).join(', ')
+                      : '—'}
                   </td>
                   <td style={{ padding: '16px 24px' }}>
-                    <span style={{ backgroundColor: addon.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(143,143,163,0.2)', color: addon.isActive ? '#86EFAC' : 'var(--color-text-muted)', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
-                      {addon.isActive ? 'ACTIVO' : 'INACTIVO'}
+                    <span style={{ backgroundColor: product.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(143,143,163,0.2)', color: product.isActive ? '#86EFAC' : 'var(--color-text-muted)', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>
+                      {product.isActive ? 'ACTIVO' : 'INACTIVO'}
                     </span>
                   </td>
                   <td style={{ padding: '16px 24px', display: 'flex', gap: 8 }}>
-                    <button onClick={() => openEditModal(addon)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => openEditModal(product)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: 8 }}>
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => handleDelete(addon.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 8 }}>
+                    <button onClick={() => handleDelete(product.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: 8 }}>
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -244,23 +258,43 @@ export function Addons() {
 
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass" style={{ width: 480, padding: 32, borderRadius: 24 }}>
-            <h2 style={{ marginTop: 0, marginBottom: 24 }}>{editingAddon ? 'Editar adicional' : 'Nuevo adicional'}</h2>
+          <div className="glass" style={{ width: 480, padding: 32, borderRadius: 24, maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 style={{ marginTop: 0, marginBottom: 24 }}>{editingProduct ? 'Editar producto' : 'Nuevo producto'}</h2>
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <input className="input" placeholder="Nombre (ej: Remera conmemorativa)" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
               <textarea className="input" placeholder="Descripción (opcional)" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} />
               <input className="input" type="number" step="0.01" placeholder="Precio en $ (ej: 8000)" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
 
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-secondary)', fontSize: 14 }}>
+                <input type="checkbox" checked={formData.showInStore} onChange={e => setFormData({ ...formData, showInStore: e.target.checked })} />
+                Mostrar en la Tienda (se puede comprar suelto, sin entrada)
+              </label>
+
+              <div>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 8 }}>
+                  Complemento de estas Experiencias (opcional, puede ser ninguna o varias)
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 140, overflowY: 'auto', border: '1px solid var(--color-border)', borderRadius: 8, padding: 10 }}>
+                  {events.length === 0 && <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>No hay experiencias creadas.</span>}
+                  {events.map(ev => (
+                    <label key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+                      <input type="checkbox" checked={formData.eventIds.includes(ev.id)} onChange={() => toggleEventId(ev.id)} />
+                      {ev.title}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               <div>
                 <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 8 }}>Foto (para que el comprador vea qué está comprando)</label>
-                {!editingAddon ? (
-                  <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>Guardá el adicional para poder cargar una foto.</p>
+                {!editingProduct ? (
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: 13, margin: 0 }}>Guardá el producto para poder cargar una foto.</p>
                 ) : (
                   <>
-                    {editingAddon.imageUrl && (
+                    {editingProduct.imageUrl && (
                       <div style={{ position: 'relative', width: 90, marginBottom: 10 }}>
                         <img
-                          src={editingAddon.imageUrl}
+                          src={editingProduct.imageUrl}
                           alt=""
                           style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--color-border)' }}
                         />
@@ -279,7 +313,7 @@ export function Addons() {
                 )}
               </div>
 
-              {!editingAddon && (
+              {!editingProduct && (
                 <>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-secondary)', fontSize: 14 }}>
                     <input type="checkbox" checked={formData.hasVariants} onChange={e => setFormData({ ...formData, hasVariants: e.target.checked })} />
@@ -296,11 +330,11 @@ export function Addons() {
                 </>
               )}
 
-              {editingAddon?.hasVariants && (
+              {editingProduct?.hasVariants && (
                 <div>
                   <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 8 }}>Variantes</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
-                    {editingAddon.variants?.map((v: any) => (
+                    {editingProduct.variants?.map((v: any) => (
                       <span key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--color-surface)', padding: '6px 10px', borderRadius: 20, fontSize: 13 }}>
                         {v.label}
                         <button type="button" onClick={() => handleRemoveVariant(v.id)} style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', display: 'flex' }}>

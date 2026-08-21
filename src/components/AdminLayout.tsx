@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, KeyRound, Palette, LayoutTemplate } from 'lucide-react';
+import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, KeyRound, Palette, LayoutTemplate, ShoppingBag } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
 export function AdminLayout() {
@@ -55,11 +55,12 @@ export function AdminLayout() {
           <Link to="/dashboard" style={navItemStyle('/dashboard')}><Activity size={20} /> Dashboard</Link>
           <Link to="/events" style={navItemStyle('/events')}><Calendar size={20} /> Eventos</Link>
           <Link to="/categories" style={navItemStyle('/categories')}><Tags size={20} /> Categorías</Link>
-          <Link to="/addons" style={navItemStyle('/addons')}><Shirt size={20} /> Adicionales</Link>
+          <Link to="/addons" style={navItemStyle('/addons')}><Shirt size={20} /> Productos</Link>
           <Link to="/content" style={navItemStyle('/content')}><Video size={20} /> Contenido</Link>
           <Link to="/landings" style={navItemStyle('/landings')}><LayoutTemplate size={20} /> Landings</Link>
           <Link to="/orders" style={navItemStyle('/orders')}><CreditCard size={20} /> Pagos</Link>
           <Link to="/content-purchases" style={navItemStyle('/content-purchases')}><Wallet size={20} /> Compras de Contenido</Link>
+          <Link to="/store-purchases" style={navItemStyle('/store-purchases')}><ShoppingBag size={20} /> Compras de Tienda</Link>
           <Link to="/tickets" style={navItemStyle('/tickets')}><Ticket size={20} /> Entradas</Link>
           <Link to="/users" style={navItemStyle('/users')}><Users size={20} /> Usuarios</Link>
           {isAdmin && (

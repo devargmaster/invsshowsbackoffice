@@ -7,9 +7,10 @@ import { Tickets } from './pages/Tickets';
 import { Users } from './pages/Users';
 import { Orders } from './pages/Orders';
 import { Categories } from './pages/Categories';
-import { Addons } from './pages/Addons';
+import { Products } from './pages/Products';
 import { Content } from './pages/Content';
 import { ContentPurchases } from './pages/ContentPurchases';
+import { StorePurchases } from './pages/StorePurchases';
 import { Landings } from './pages/Landings';
 import { AdminLayout } from './components/AdminLayout';
 import { PaymentSettings } from './pages/PaymentSettings';
@@ -28,11 +29,12 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/events" element={<Events />} />
           <Route path="/categories" element={<Categories />} />
-          <Route path="/addons" element={<Addons />} />
+          <Route path="/addons" element={<Products />} />
           <Route path="/content" element={<Content />} />
           <Route path="/landings" element={<Landings />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/content-purchases" element={<ContentPurchases />} />
+          <Route path="/store-purchases" element={<StorePurchases />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/users" element={<Users />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
