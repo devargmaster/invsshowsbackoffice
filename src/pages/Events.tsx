@@ -332,6 +332,9 @@ export function Events() {
                       </p>
                     )}
                     <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handlePhotoUpload} disabled={uploadingPhoto} style={{ color: 'var(--color-text-secondary)', fontSize: 14 }} />
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: 12, margin: '4px 0 0', lineHeight: 1.5 }}>
+                      Recomendado: al menos 1600×700px (relación 16:7) y menor a 5MB, JPG o WEBP. Centrá lo importante de la foto — la misma imagen se recorta distinto en la card del listado y en el detalle del evento.
+                    </p>
                     {uploadingPhoto && <div style={{ color: 'var(--color-accent)', fontSize: 12 }}>Subiendo imagen...</div>}
                   </>
                 )}
