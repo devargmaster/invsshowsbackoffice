@@ -76,7 +76,7 @@ export function Events() {
     setFormData({
       title: ev.title,
       description: ev.description || '',
-      date: isoToArgentinaLocalInput(ev.date),
+      date: ev.date ? isoToArgentinaLocalInput(ev.date) : '',
       location: ev.location || '',
       mode: ev.mode,
       status: ev.status,
@@ -196,7 +196,7 @@ export function Events() {
         const finalEvent = await apiClient.patch<any>(`/events/${editingEvent}`, {
           ...dto,
           status,
-          date: argentinaLocalInputToISOString(formData.date)
+          date: formData.date ? argentinaLocalInputToISOString(formData.date) : undefined,
         });
         setEvents(prev => prev.map(ev => ev.id === editingEvent ? finalEvent : ev));
         setShowModal(false);
@@ -204,7 +204,7 @@ export function Events() {
         // Create mode
         const created = await apiClient.post<any>('/events', {
           ...dto,
-          date: argentinaLocalInputToISOString(formData.date)
+          date: formData.date ? argentinaLocalInputToISOString(formData.date) : undefined,
         });
 
         let finalEvent = created;
@@ -260,7 +260,7 @@ export function Events() {
                   />
                 </td>
                 <td style={{ padding: '16px 24px', fontWeight: 600 }}>{ev.title}</td>
-                <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{new Date(ev.date).toLocaleString()}</td>
+                <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{ev.date ? new Date(ev.date).toLocaleString() : 'Próximamente'}</td>
                 <td style={{ padding: '16px 24px' }}>
                   <span style={{ backgroundColor: 'var(--color-surface)', padding: '4px 10px', borderRadius: 20, fontSize: 13, color: 'var(--color-accent)' }}>
                     {ev.mode}
@@ -287,7 +287,19 @@ export function Events() {
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <input className="input" placeholder="Título" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
               <textarea className="input" placeholder="Descripción" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} />
-              <input className="input" type="datetime-local" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} required />
+              <div>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 6 }}>
+                  Fecha y hora {!formData.date && <span style={{ color: 'var(--color-accent)' }}>— vacío se muestra como "Próximamente" (sin venta de entradas hasta cargarla)</span>}
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input className="input" type="datetime-local" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} style={{ flex: 1 }} />
+                  {formData.date && (
+                    <button type="button" onClick={() => setFormData({ ...formData, date: '' })} style={{ padding: '0 14px', borderRadius: 8, border: '1px solid var(--color-border)', background: 'transparent', color: 'var(--color-text-muted)', cursor: 'pointer' }}>
+                      Quitar
+                    </button>
+                  )}
+                </div>
+              </div>
               <input className="input" placeholder="Ubicación (opcional)" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
               <select className="input" value={formData.mode} onChange={e => setFormData({ ...formData, mode: e.target.value })}>
                 <option value="PRESENCIAL">Presencial</option>
