@@ -74,7 +74,9 @@ export const apiClient = {
       let message = 'Error de conexión';
       try {
         const body = await res.json();
-        message = body.message || message;
+        // El backend puede mandar `message` como string único o como array
+        // (errores de validación, uno por campo).
+        message = (Array.isArray(body.message) ? body.message.join(' ') : body.message) || message;
       } catch {}
       throw new ApiError(res.status, message);
     }
