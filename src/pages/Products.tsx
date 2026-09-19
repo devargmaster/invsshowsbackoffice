@@ -8,6 +8,7 @@ function formatMoney(cents: number, currency = 'ARS') {
 
 const emptyForm = {
   name: '',
+  category: 'PRODUCTO' as 'PRODUCTO' | 'SERVICIO',
   description: '',
   price: '',
   hasVariants: false,
@@ -20,6 +21,7 @@ export function Products() {
   const [events, setEvents] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoryFilter, setCategoryFilter] = useState<'TODOS' | 'PRODUCTO' | 'SERVICIO'>('TODOS');
 
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -55,6 +57,7 @@ export function Products() {
     setEditingProduct(product);
     setFormData({
       name: product.name,
+      category: product.category || 'PRODUCTO',
       description: product.description || '',
       price: (product.priceCents / 100).toString(),
       hasVariants: product.hasVariants,
@@ -80,6 +83,7 @@ export function Products() {
       if (editingProduct) {
         const updated = await apiClient.patch<any>(`/addons/${editingProduct.id}`, {
           name: formData.name,
+          category: formData.category,
           description: formData.description || undefined,
           priceCents: Math.round(parseFloat(formData.price || '0') * 100),
           showInStore: formData.showInStore,
@@ -93,6 +97,7 @@ export function Products() {
           : undefined;
         const created = await apiClient.post<any>('/addons', {
           name: formData.name,
+          category: formData.category,
           description: formData.description || undefined,
           priceCents: Math.round(parseFloat(formData.price || '0') * 100),
           hasVariants: formData.hasVariants,
@@ -175,14 +180,30 @@ export function Products() {
 
   return (
     <div>
-      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Productos</h1>
+      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: 28 }}>Productos y servicios</h1>
       <p style={{ color: 'var(--color-text-muted)', marginBottom: 32 }}>
-        Catálogo de productos (remeras, cuadros, merchandising): vendibles en la Tienda y/o como complemento de una o varias Experiencias.
+        Catálogo de productos (remeras, cuadros, merchandising) y servicios (mastering, mezcla, producción): vendibles en la Tienda y/o como complemento de una o varias Experiencias.
       </p>
 
-      <div className="glass" style={{ padding: 16, borderRadius: 16, marginBottom: 24, display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="glass" style={{ padding: 16, borderRadius: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {(['TODOS', 'PRODUCTO', 'SERVICIO'] as const).map(opt => (
+            <button
+              key={opt}
+              onClick={() => setCategoryFilter(opt)}
+              style={{
+                padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                border: '1px solid var(--color-border)',
+                background: categoryFilter === opt ? 'var(--color-accent)' : 'transparent',
+                color: categoryFilter === opt ? 'var(--color-bg)' : 'var(--color-text-secondary)',
+              }}
+            >
+              {opt === 'TODOS' ? 'Todos' : opt === 'PRODUCTO' ? 'Productos' : 'Servicios'}
+            </button>
+          ))}
+        </div>
         <button className="btn-primary" onClick={openCreateModal}>
-          <Plus size={20} /> Nuevo producto
+          <Plus size={20} /> Nuevo
         </button>
       </div>
 
@@ -192,13 +213,16 @@ export function Products() {
         <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 40 }}>Todavía no hay productos cargados.</div>
       )}
 
-      {!loading && products.length > 0 && (
+      {(() => {
+        const filtered = categoryFilter === 'TODOS' ? products : products.filter(p => (p.category || 'PRODUCTO') === categoryFilter);
+        return !loading && products.length > 0 && (
         <div className="glass" style={{ borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500, width: 70 }}>Foto</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Nombre</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Categoría</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Precio</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Tienda</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Experiencias</th>
@@ -207,7 +231,7 @@ export function Products() {
               </tr>
             </thead>
             <tbody>
-              {products.map(product => (
+              {filtered.map(product => (
                 <tr key={product.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: product.isActive ? 1 : 0.5 }}>
                   <td style={{ padding: '16px 24px' }}>
                     {product.imageUrl ? (
@@ -223,6 +247,15 @@ export function Products() {
                     )}
                   </td>
                   <td style={{ padding: '16px 24px', fontWeight: 600 }}>{product.name}</td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <span style={{
+                      backgroundColor: product.category === 'SERVICIO' ? 'rgba(168, 85, 247, 0.2)' : 'rgba(96, 165, 250, 0.2)',
+                      color: product.category === 'SERVICIO' ? '#D8B4FE' : '#93C5FD',
+                      padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+                    }}>
+                      {product.category === 'SERVICIO' ? 'SERVICIO' : 'PRODUCTO'}
+                    </span>
+                  </td>
                   <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{formatMoney(product.priceCents, product.currency)}</td>
                   <td style={{ padding: '16px 24px' }}>
                     {product.showInStore ? (
@@ -254,7 +287,8 @@ export function Products() {
             </tbody>
           </table>
         </div>
-      )}
+        );
+      })()}
 
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
@@ -262,6 +296,15 @@ export function Products() {
             <h2 style={{ marginTop: 0, marginBottom: 24 }}>{editingProduct ? 'Editar producto' : 'Nuevo producto'}</h2>
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <input className="input" placeholder="Nombre (ej: Remera conmemorativa)" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+
+              <div>
+                <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 8 }}>Categoría</label>
+                <select className="input" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value as 'PRODUCTO' | 'SERVICIO' })}>
+                  <option value="PRODUCTO">Producto (remera, merchandising)</option>
+                  <option value="SERVICIO">Servicio (mastering, mezcla, producción)</option>
+                </select>
+              </div>
+
               <textarea className="input" placeholder="Descripción (opcional)" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} />
               <input className="input" type="number" step="0.01" placeholder="Precio en $ (ej: 8000)" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
 
@@ -317,12 +360,12 @@ export function Products() {
                 <>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-secondary)', fontSize: 14 }}>
                     <input type="checkbox" checked={formData.hasVariants} onChange={e => setFormData({ ...formData, hasVariants: e.target.checked })} />
-                    Tiene variantes (ej: talles)
+                    Tiene variantes {formData.category === 'SERVICIO' ? '(ej: básico/premium)' : '(ej: talles)'}
                   </label>
                   {formData.hasVariants && (
                     <input
                       className="input"
-                      placeholder="Talles separados por coma (ej: S,M,L,XL)"
+                      placeholder={formData.category === 'SERVICIO' ? 'Opciones separadas por coma (ej: Básico,Premium)' : 'Talles separados por coma (ej: S,M,L,XL)'}
                       value={formData.variantsCsv}
                       onChange={e => setFormData({ ...formData, variantsCsv: e.target.value })}
                     />
