@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, KeyRound, Palette, LayoutTemplate, ShoppingBag } from 'lucide-react';
+import { LogOut, Calendar, Ticket, Users, Activity, CreditCard, Tags, Shirt, Video, Wallet, KeyRound, Palette, LayoutTemplate, ShoppingBag, BadgeCheck } from 'lucide-react';
 import { apiClient } from '../apiClient';
 
 export function AdminLayout() {
@@ -61,6 +61,7 @@ export function AdminLayout() {
           <Link to="/orders" style={navItemStyle('/orders')}><CreditCard size={20} /> Pagos</Link>
           <Link to="/content-purchases" style={navItemStyle('/content-purchases')}><Wallet size={20} /> Compras de Contenido</Link>
           <Link to="/store-purchases" style={navItemStyle('/store-purchases')}><ShoppingBag size={20} /> Compras de Tienda</Link>
+          <Link to="/access-requests" style={navItemStyle('/access-requests')}><BadgeCheck size={20} /> Acreditaciones</Link>
           <Link to="/tickets" style={navItemStyle('/tickets')}><Ticket size={20} /> Entradas</Link>
           <Link to="/users" style={navItemStyle('/users')}><Users size={20} /> Usuarios</Link>
           {isAdmin && (

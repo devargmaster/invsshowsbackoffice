@@ -11,6 +11,7 @@ import { Products } from './pages/Products';
 import { Content } from './pages/Content';
 import { ContentPurchases } from './pages/ContentPurchases';
 import { StorePurchases } from './pages/StorePurchases';
+import { AccessRequests } from './pages/AccessRequests';
 import { Landings } from './pages/Landings';
 import { AdminLayout } from './components/AdminLayout';
 import { PaymentSettings } from './pages/PaymentSettings';
@@ -35,6 +36,7 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/content-purchases" element={<ContentPurchases />} />
           <Route path="/store-purchases" element={<StorePurchases />} />
+          <Route path="/access-requests" element={<AccessRequests />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/users" element={<Users />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
