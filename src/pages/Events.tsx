@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, Edit2, Image as ImageIcon, Radio } from 'lucide-react';
 import { apiClient } from '../apiClient';
+import { argentinaLocalInputToISOString, isoToArgentinaLocalInput, nowAsArgentinaLocalInput } from '../utils/argentinaTime';
 
 interface StreamCreationResult {
   provider: string;
@@ -31,7 +32,7 @@ export function Events() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    date: new Date().toISOString().slice(0, 16),
+    date: nowAsArgentinaLocalInput(),
     location: '',
     mode: 'PRESENCIAL',
     status: 'DRAFT',
@@ -75,7 +76,7 @@ export function Events() {
     setFormData({
       title: ev.title,
       description: ev.description || '',
-      date: new Date(ev.date).toISOString().slice(0, 16),
+      date: isoToArgentinaLocalInput(ev.date),
       location: ev.location || '',
       mode: ev.mode,
       status: ev.status,
@@ -102,7 +103,7 @@ export function Events() {
     setFormData({
       title: '',
       description: '',
-      date: new Date().toISOString().slice(0, 16),
+      date: nowAsArgentinaLocalInput(),
       location: '',
       mode: 'PRESENCIAL',
       status: 'DRAFT',
@@ -195,7 +196,7 @@ export function Events() {
         const finalEvent = await apiClient.patch<any>(`/events/${editingEvent}`, {
           ...dto,
           status,
-          date: new Date(formData.date).toISOString()
+          date: argentinaLocalInputToISOString(formData.date)
         });
         setEvents(prev => prev.map(ev => ev.id === editingEvent ? finalEvent : ev));
         setShowModal(false);
@@ -203,7 +204,7 @@ export function Events() {
         // Create mode
         const created = await apiClient.post<any>('/events', {
           ...dto,
-          date: new Date(formData.date).toISOString()
+          date: argentinaLocalInputToISOString(formData.date)
         });
 
         let finalEvent = created;

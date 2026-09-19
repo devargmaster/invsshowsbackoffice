@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 import { apiClient } from '../apiClient';
+import { argentinaLocalInputToISOString, isoToArgentinaLocalInput } from '../utils/argentinaTime';
 
 function formatMoney(cents: number, currency = 'ARS') {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency }).format(cents / 100);
@@ -66,7 +67,7 @@ export function Categories() {
       description: cat.description || '',
       price: (cat.priceCents / 100).toString(),
       maxCapacity: cat.maxCapacity.toString(),
-      accessStartsAt: cat.accessStartsAt ? new Date(cat.accessStartsAt).toISOString().slice(0, 16) : '',
+      accessStartsAt: cat.accessStartsAt ? isoToArgentinaLocalInput(cat.accessStartsAt) : '',
     });
     setShowModal(true);
   };
@@ -78,7 +79,7 @@ export function Categories() {
       description: formData.description || undefined,
       priceCents: Math.round(parseFloat(formData.price || '0') * 100),
       maxCapacity: parseInt(formData.maxCapacity || '0', 10),
-      accessStartsAt: formData.accessStartsAt ? new Date(formData.accessStartsAt).toISOString() : undefined,
+      accessStartsAt: formData.accessStartsAt ? argentinaLocalInputToISOString(formData.accessStartsAt) : undefined,
     };
 
     try {
