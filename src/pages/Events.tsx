@@ -297,6 +297,8 @@ export function Events() {
               <select className="input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
                 <option value="DRAFT">Borrador (DRAFT)</option>
                 <option value="PUBLISHED">Publicado (PUBLISHED)</option>
+                {editingEvent && <option value="COMPLETED">Finalizado (COMPLETED) — ya no se muestra como próximo</option>}
+                {editingEvent && <option value="CANCELLED">Cancelado (CANCELLED)</option>}
               </select>
 
               <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
