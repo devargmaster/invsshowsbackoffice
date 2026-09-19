@@ -33,6 +33,7 @@ export function Events() {
     title: '',
     description: '',
     date: nowAsArgentinaLocalInput(),
+    commerciallyReleased: false,
     location: '',
     mode: 'PRESENCIAL',
     status: 'DRAFT',
@@ -77,6 +78,7 @@ export function Events() {
       title: ev.title,
       description: ev.description || '',
       date: ev.date ? isoToArgentinaLocalInput(ev.date) : '',
+      commerciallyReleased: ev.commerciallyReleased ?? false,
       location: ev.location || '',
       mode: ev.mode,
       status: ev.status,
@@ -104,6 +106,7 @@ export function Events() {
       title: '',
       description: '',
       date: nowAsArgentinaLocalInput(),
+      commerciallyReleased: false,
       location: '',
       mode: 'PRESENCIAL',
       status: 'DRAFT',
@@ -245,6 +248,7 @@ export function Events() {
               <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500, width: 90 }}>Foto</th>
               <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Título</th>
               <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Fecha</th>
+              <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Liberado</th>
               <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Modalidad</th>
               <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Acciones</th>
             </tr>
@@ -260,7 +264,16 @@ export function Events() {
                   />
                 </td>
                 <td style={{ padding: '16px 24px', fontWeight: 600 }}>{ev.title}</td>
-                <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{ev.date ? new Date(ev.date).toLocaleString() : 'Próximamente'}</td>
+                <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{ev.date ? new Date(ev.date).toLocaleString() : '— sin cargar'}</td>
+                <td style={{ padding: '16px 24px' }}>
+                  <span style={{
+                    backgroundColor: ev.commerciallyReleased ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)',
+                    color: ev.commerciallyReleased ? '#86EFAC' : '#FBBF24',
+                    padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+                  }}>
+                    {ev.commerciallyReleased ? 'SÍ' : 'PRÓXIMAMENTE'}
+                  </span>
+                </td>
                 <td style={{ padding: '16px 24px' }}>
                   <span style={{ backgroundColor: 'var(--color-surface)', padding: '4px 10px', borderRadius: 20, fontSize: 13, color: 'var(--color-accent)' }}>
                     {ev.mode}
@@ -289,7 +302,7 @@ export function Events() {
               <textarea className="input" placeholder="Descripción" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} />
               <div>
                 <label style={{ color: 'var(--color-text-muted)', fontSize: 13, display: 'block', marginBottom: 6 }}>
-                  Fecha y hora {!formData.date && <span style={{ color: 'var(--color-accent)' }}>— vacío se muestra como "Próximamente" (sin venta de entradas hasta cargarla)</span>}
+                  Fecha y hora (opcional — se puede cargar antes de liberar el evento para la venta)
                 </label>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input className="input" type="datetime-local" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} style={{ flex: 1 }} />
@@ -300,6 +313,24 @@ export function Events() {
                   )}
                 </div>
               </div>
+
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, color: 'var(--color-text-secondary)', fontSize: 14, background: 'rgba(255,255,255,0.03)', padding: 12, borderRadius: 10 }}>
+                <input
+                  type="checkbox"
+                  checked={formData.commerciallyReleased}
+                  onChange={e => setFormData({ ...formData, commerciallyReleased: e.target.checked })}
+                  style={{ marginTop: 2 }}
+                />
+                <span>
+                  <strong>Liberado comercialmente</strong>
+                  <br />
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 12.5 }}>
+                    {formData.commerciallyReleased
+                      ? 'Se ve la fecha real y se pueden comprar entradas.'
+                      : 'Se muestra como "Próximamente" y no se pueden comprar entradas, aunque ya tenga fecha cargada.'}
+                  </span>
+                </span>
+              </label>
               <input className="input" placeholder="Ubicación (opcional)" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
               <select className="input" value={formData.mode} onChange={e => setFormData({ ...formData, mode: e.target.value })}>
                 <option value="PRESENCIAL">Presencial</option>
