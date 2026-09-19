@@ -124,6 +124,7 @@ export function AccessRequests() {
               <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Persona</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Evento</th>
+                <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Teléfono</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Código / motivo</th>
                 <th style={{ padding: '16px 24px', color: 'var(--color-text-muted)', fontWeight: 500 }}>Estado</th>
               </tr>
@@ -141,6 +142,7 @@ export function AccessRequests() {
                   >
                     <td style={{ padding: '16px 24px', fontWeight: 600 }}>{r.user?.fullName || r.user?.email}</td>
                     <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>{r.event?.title}</td>
+                    <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)', fontFamily: 'monospace' }}>{r.phone || '—'}</td>
                     <td style={{ padding: '16px 24px', color: 'var(--color-text-secondary)' }}>
                       {r.code || '—'}{r.note ? ` · ${r.note}` : ''}
                     </td>
@@ -165,6 +167,11 @@ export function AccessRequests() {
             <div style={{ marginBottom: 16 }}>
               <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Evento</div>
               <div style={{ fontSize: 15, fontWeight: 600 }}>{selected.event?.title}</div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 4 }}>Teléfono (para chequear antes de aprobar)</div>
+              <div style={{ fontSize: 15, fontFamily: 'monospace', fontWeight: 600 }}>{selected.phone || '—'}</div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
